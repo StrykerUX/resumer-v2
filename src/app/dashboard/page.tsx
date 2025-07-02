@@ -141,9 +141,9 @@ export default function DashboardPage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" disabled>
+              <Button className="w-full" onClick={() => router.push('/dashboard/upload')}>
                 <Upload className="w-4 h-4 mr-2" />
-                Subir CV (Próximamente)
+                Subir CV
               </Button>
               <p className="text-xs text-gray-500 mt-2">
                 Soportamos archivos PDF, Word e imágenes

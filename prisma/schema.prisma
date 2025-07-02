@@ -66,17 +66,18 @@ model VerificationToken {
 
 // Resumer-v2 specific models
 model Resume {
-  id          String   @id @default(cuid())
-  userId      String
-  fileName    String
-  fileUrl     String
-  fileType    String
-  status      String   @default("uploaded") // uploaded, analyzing, completed, error
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  userId       String
+  originalName String   // Original filename
+  fileUrl      String   // UploadThing URL
+  fileSize     Int      // File size in bytes
+  mimeType     String   // MIME type
+  status       String   @default("uploaded") // uploaded, analyzing, completed, error
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  analysis  Analysis?
+  user         User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  analysis     Analysis?
   enhancements Enhancement[]
 }
 
