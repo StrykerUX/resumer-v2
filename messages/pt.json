@@ -1,0 +1,176 @@
+{
+  "navigation": {
+    "features": "Recursos",
+    "pricing": "Preços",
+    "howItWorks": "Como Funciona",
+    "signIn": "Entrar",
+    "getStarted": "Começar Grátis"
+  },
+  "hero": {
+    "badge": "Melhoria de Currículo com IA",
+    "title": "Transforme seu Currículo com",
+    "titleHighlight": "Inteligência Artificial",
+    "description": "Tenha seu currículo analisado por IA, receba recomendações personalizadas e baixe uma versão otimizada para ATS que consegue mais entrevistas.",
+    "startAnalysis": "Iniciar Análise Grátis",
+    "viewSample": "Ver Resultados de Exemplo",
+    "step1": {
+      "title": "Envie seu Currículo",
+      "description": "PDF, Word ou imagem - suportamos todos os formatos"
+    },
+    "step2": {
+      "title": "Análise com IA",
+      "description": "Receba recomendações personalizadas e melhorias"
+    },
+    "step3": {
+      "title": "Baixe Melhorado",
+      "description": "Currículo otimizado para ATS pronto para candidaturas"
+    }
+  },
+  "features": {
+    "badge": "Recursos",
+    "title": "Tudo que Você Precisa para Conseguir seu Emprego dos Sonhos",
+    "description": "Nossa suíte completa de ferramentas ajuda você a criar o currículo perfeito que se destaca tanto para humanos quanto para sistemas de IA.",
+    "aiAnalysis": {
+      "title": "Análise com IA",
+      "description": "IA avançada analisa a estrutura, conteúdo e palavras-chave do seu currículo para máximo impacto."
+    },
+    "atsOptimization": {
+      "title": "Otimização ATS",
+      "description": "Garanta que seu currículo passe pelos Sistemas de Rastreamento de Candidatos com formatação otimizada."
+    },
+    "multipleFormats": {
+      "title": "Múltiplos Formatos",
+      "description": "Envie arquivos PDF, Word ou até imagens do seu currículo para análise."
+    },
+    "creditSystem": {
+      "title": "Sistema de Créditos",
+      "description": "Preços flexíveis baseados em créditos. Pague apenas pelo que usar, sem assinaturas."
+    },
+    "professionalPdfs": {
+      "title": "PDFs Profissionais",
+      "description": "Baixe PDFs lindamente formatados e profissionais com links funcionais."
+    },
+    "securePrivate": {
+      "title": "Seguro e Privado",
+      "description": "Seus dados são criptografados e seguros. Nunca compartilhamos suas informações pessoais."
+    }
+  },
+  "pricing": {
+    "badge": "Preços",
+    "title": "Preços Simples e Transparentes",
+    "description": "Comece grátis com 5 créditos de boas-vindas. Escolha um plano que atenda às suas necessidades. Sem assinaturas, pague apenas pelo que usar.",
+    "starter": {
+      "name": "Iniciante",
+      "price": "$9.99",
+      "description": "Perfeito para experimentar nosso serviço",
+      "features": [
+        "50 créditos incluídos",
+        "Melhorias gerais de currículo",
+        "Otimização ATS",
+        "Download em PDF",
+        "Suporte por email"
+      ]
+    },
+    "professional": {
+      "name": "Profissional",
+      "price": "$24.99",
+      "description": "Melhor valor para candidatos a emprego",
+      "features": [
+        "150 créditos incluídos",
+        "Melhorias gerais + específicas",
+        "Múltiplas versões de currículo",
+        "Processamento prioritário",
+        "Análise ATS avançada",
+        "Suporte prioritário"
+      ]
+    },
+    "premium": {
+      "name": "Premium",
+      "price": "$69.99",
+      "description": "Para profissionais e recrutadores",
+      "features": [
+        "500 créditos incluídos",
+        "Análise ilimitada de currículo",
+        "Modelos personalizados",
+        "Processamento em lote",
+        "Acesso à API",
+        "Suporte dedicado"
+      ]
+    },
+    "oneTime": "única vez",
+    "credits": "créditos",
+    "getStarted": "Começar",
+    "mostPopular": "Mais Popular",
+    "freeCredits": "Novos usuários ganham 5 créditos grátis para experimentar nosso serviço!",
+    "guarantee": "Créditos nunca expiram • Pagamentos seguros pelo Stripe • Garantia de reembolso de 30 dias"
+  },
+  "cta": {
+    "title": "Pronto para Conseguir seu Emprego dos Sonhos?",
+    "description": "Junte-se a milhares de profissionais que melhoraram seus currículos com IA. Comece sua análise gratuita hoje e veja a diferença.",
+    "startAnalysis": "Iniciar Análise Grátis",
+    "watchDemo": "Assistir Demo",
+    "stats": {
+      "resumesEnhanced": "Currículos Melhorados",
+      "interviewIncrease": "Aumento na Taxa de Entrevistas",
+      "responseTime": "Tempo Médio de Resposta"
+    }
+  },
+  "footer": {
+    "tagline": "Melhoria de currículo com IA para o candidato moderno.",
+    "product": "Produto",
+    "company": "Empresa",
+    "support": "Suporte",
+    "features": "Recursos",
+    "pricing": "Preços",
+    "api": "API",
+    "integrations": "Integrações",
+    "about": "Sobre",
+    "blog": "Blog",
+    "careers": "Carreiras",
+    "contact": "Contato",
+    "helpCenter": "Central de Ajuda",
+    "privacyPolicy": "Política de Privacidade",
+    "termsOfService": "Termos de Serviço",
+    "status": "Status",
+    "copyright": "© 2024 Resumer-v2. Todos os direitos reservados. Construído com IA para o futuro do trabalho."
+  },
+  "auth": {
+    "signin": {
+      "title": "Bem-vindo de volta ao",
+      "subtitle": "Entre na sua conta para continuar melhorando seu currículo",
+      "signIn": "Entrar",
+      "description": "Digite suas credenciais para acessar sua conta",
+      "email": "Email",
+      "emailPlaceholder": "Digite seu email",
+      "password": "Senha",
+      "passwordPlaceholder": "Digite sua senha",
+      "forgotPassword": "Esqueceu sua senha?",
+      "noAccount": "Não tem uma conta?",
+      "signUpHere": "Cadastre-se aqui"
+    },
+    "signup": {
+      "title": "Junte-se ao",
+      "subtitle": "Crie sua conta e comece a melhorar seu currículo com IA",
+      "freeCredits": "Ganhe 5 créditos grátis ao se cadastrar!",
+      "createAccount": "Criar Conta",
+      "description": "Preencha seus dados para começar",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "Email",
+      "emailPlaceholder": "joao@exemplo.com",
+      "password": "Senha",
+      "passwordPlaceholder": "Crie uma senha forte",
+      "confirmPassword": "Confirmar Senha",
+      "confirmPasswordPlaceholder": "Confirme sua senha",
+      "haveAccount": "Já tem uma conta?",
+      "signInHere": "Entre aqui",
+      "termsAgreement": "Ao criar uma conta, você concorda com nossos",
+      "termsOfService": "Termos de Serviço",
+      "and": "e",
+      "privacyPolicy": "Política de Privacidade"
+    }
+  },
+  "common": {
+    "backToHome": "Voltar ao Início"
+  }
+}

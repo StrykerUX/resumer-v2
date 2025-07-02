@@ -1,0 +1,176 @@
+{
+  "navigation": {
+    "features": "Características",
+    "pricing": "Precios",
+    "howItWorks": "Cómo Funciona",
+    "signIn": "Iniciar Sesión",
+    "getStarted": "Comenzar Gratis"
+  },
+  "hero": {
+    "badge": "Mejora de Currículum con IA",
+    "title": "Transforma tu Currículum con",
+    "titleHighlight": "Inteligencia Artificial",
+    "description": "Haz que tu currículum sea analizado por IA, recibe recomendaciones personalizadas y descarga una versión optimizada para ATS que te consiga más entrevistas.",
+    "startAnalysis": "Comenzar Análisis Gratis",
+    "viewSample": "Ver Resultados de Ejemplo",
+    "step1": {
+      "title": "Sube tu Currículum",
+      "description": "PDF, Word o imagen - soportamos todos los formatos"
+    },
+    "step2": {
+      "title": "Análisis con IA",
+      "description": "Obtén recomendaciones personalizadas y mejoras"
+    },
+    "step3": {
+      "title": "Descarga Mejorado",
+      "description": "Currículum optimizado para ATS listo para aplicaciones"
+    }
+  },
+  "features": {
+    "badge": "Características",
+    "title": "Todo lo que Necesitas para Conseguir tu Trabajo Soñado",
+    "description": "Nuestra suite completa de herramientas te ayuda a crear el currículum perfecto que destaque tanto para humanos como para sistemas de IA.",
+    "aiAnalysis": {
+      "title": "Análisis con IA",
+      "description": "IA avanzada analiza la estructura, contenido y palabras clave de tu currículum para máximo impacto."
+    },
+    "atsOptimization": {
+      "title": "Optimización ATS",
+      "description": "Asegúrate de que tu currículum pase los Sistemas de Seguimiento de Candidatos con formato optimizado."
+    },
+    "multipleFormats": {
+      "title": "Múltiples Formatos",
+      "description": "Sube archivos PDF, Word o incluso imágenes de tu currículum para análisis."
+    },
+    "creditSystem": {
+      "title": "Sistema de Créditos",
+      "description": "Precios flexibles basados en créditos. Paga solo por lo que uses, sin suscripciones."
+    },
+    "professionalPdfs": {
+      "title": "PDFs Profesionales",
+      "description": "Descarga PDFs bellamente formateados y profesionales con enlaces funcionales."
+    },
+    "securePrivate": {
+      "title": "Seguro y Privado",
+      "description": "Tus datos están cifrados y seguros. Nunca compartimos tu información personal."
+    }
+  },
+  "pricing": {
+    "badge": "Precios",
+    "title": "Precios Simples y Transparentes",
+    "description": "Comienza gratis con 5 créditos de bienvenida. Elige un plan que se adapte a tus necesidades. Sin suscripciones, paga solo por lo que uses.",
+    "starter": {
+      "name": "Básico",
+      "price": "$9.99",
+      "description": "Perfecto para probar nuestro servicio",
+      "features": [
+        "50 créditos incluidos",
+        "Mejoras generales de currículum",
+        "Optimización ATS",
+        "Descarga en PDF",
+        "Soporte por email"
+      ]
+    },
+    "professional": {
+      "name": "Profesional",
+      "price": "$24.99",
+      "description": "Mejor valor para buscadores de empleo",
+      "features": [
+        "150 créditos incluidos",
+        "Mejoras generales + específicas",
+        "Múltiples versiones de currículum",
+        "Procesamiento prioritario",
+        "Análisis ATS avanzado",
+        "Soporte prioritario"
+      ]
+    },
+    "premium": {
+      "name": "Premium",
+      "price": "$69.99",
+      "description": "Para profesionales y reclutadores",
+      "features": [
+        "500 créditos incluidos",
+        "Análisis ilimitado de currículum",
+        "Plantillas personalizadas",
+        "Procesamiento en lote",
+        "Acceso a API",
+        "Soporte dedicado"
+      ]
+    },
+    "oneTime": "una vez",
+    "credits": "créditos",
+    "getStarted": "Comenzar",
+    "mostPopular": "Más Popular",
+    "freeCredits": "¡Los nuevos usuarios obtienen 5 créditos gratis para probar nuestro servicio!",
+    "guarantee": "Los créditos nunca expiran • Pagos seguros por Stripe • Garantía de devolución de 30 días"
+  },
+  "cta": {
+    "title": "¿Listo para Conseguir tu Trabajo Soñado?",
+    "description": "Únete a miles de profesionales que han mejorado sus currículums con IA. Comienza tu análisis gratuito hoy y ve la diferencia.",
+    "startAnalysis": "Comenzar Análisis Gratis",
+    "watchDemo": "Ver Demo",
+    "stats": {
+      "resumesEnhanced": "Currículums Mejorados",
+      "interviewIncrease": "Aumento en Tasa de Entrevistas",
+      "responseTime": "Tiempo Promedio de Respuesta"
+    }
+  },
+  "footer": {
+    "tagline": "Mejora de currículum con IA para el buscador de empleo moderno.",
+    "product": "Producto",
+    "company": "Empresa",
+    "support": "Soporte",
+    "features": "Características",
+    "pricing": "Precios",
+    "api": "API",
+    "integrations": "Integraciones",
+    "about": "Acerca de",
+    "blog": "Blog",
+    "careers": "Carreras",
+    "contact": "Contacto",
+    "helpCenter": "Centro de Ayuda",
+    "privacyPolicy": "Política de Privacidad",
+    "termsOfService": "Términos de Servicio",
+    "status": "Estado",
+    "copyright": "© 2024 Resumer-v2. Todos los derechos reservados. Construido con IA para el futuro del trabajo."
+  },
+  "auth": {
+    "signin": {
+      "title": "Bienvenido de vuelta a",
+      "subtitle": "Inicia sesión en tu cuenta para continuar mejorando tu currículum",
+      "signIn": "Iniciar Sesión",
+      "description": "Ingresa tus credenciales para acceder a tu cuenta",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "Ingresa tu correo electrónico",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Ingresa tu contraseña",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "noAccount": "¿No tienes una cuenta?",
+      "signUpHere": "Regístrate aquí"
+    },
+    "signup": {
+      "title": "Únete a",
+      "subtitle": "Crea tu cuenta y comienza a mejorar tu currículum con IA",
+      "freeCredits": "¡Obtén 5 créditos gratis al registrarte!",
+      "createAccount": "Crear Cuenta",
+      "description": "Completa tus datos para comenzar",
+      "firstName": "Nombre",
+      "lastName": "Apellido",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "juan@ejemplo.com",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Crea una contraseña segura",
+      "confirmPassword": "Confirmar Contraseña",
+      "confirmPasswordPlaceholder": "Confirma tu contraseña",
+      "haveAccount": "¿Ya tienes una cuenta?",
+      "signInHere": "Inicia sesión aquí",
+      "termsAgreement": "Al crear una cuenta, aceptas nuestros",
+      "termsOfService": "Términos de Servicio",
+      "and": "y",
+      "privacyPolicy": "Política de Privacidad"
+    }
+  },
+  "common": {
+    "backToHome": "Volver al Inicio"
+  }
+}

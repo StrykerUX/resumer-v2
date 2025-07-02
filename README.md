@@ -49,6 +49,51 @@ Resumer-v2 es una webapp que ayuda a los usuarios a mejorar sus CVs utilizando i
 - Formato profesional
 - Compatible con ATS
 
+## 🌍 Internacionalización (i18n)
+
+### Idiomas Soportados
+- 🇪🇸 **Español** (idioma principal)
+- 🇺🇸 **Inglés** 
+- 🇧🇷 **Portugués**
+
+### Funcionalidades i18n
+- **Selector de idiomas** visual en la navegación con banderas
+- **Detección automática** del idioma del navegador
+- **Persistencia** de preferencia en localStorage
+- **Traducciones completas** de toda la interfaz de usuario
+- **Carga dinámica** de archivos de traducción
+- **Loading states** durante cambio de idioma
+
+### Estructura de Traducciones
+```
+messages/
+├── es.json    # Español (idioma base)
+├── en.json    # Inglés
+└── pt.json    # Portugués
+```
+
+### Uso del Sistema de Traducciones
+```typescript
+import { useTranslations } from '@/hooks/use-translations'
+
+const MyComponent = () => {
+  const { t, locale, isLoading } = useTranslations()
+  
+  return (
+    <div>
+      <h1>{t('hero.title')}</h1>
+      <p>{t('hero.description')}</p>
+    </div>
+  )
+}
+```
+
+### Agregar Nuevo Idioma
+1. Crear archivo `messages/fr.json` (ejemplo francés)
+2. Traducir todas las claves del archivo `es.json`
+3. Agregar el idioma al array en `LanguageSelector`
+4. Testear la funcionalidad
+
 ## 🛠️ Stack Tecnológico
 
 ### Frontend
@@ -57,6 +102,8 @@ Resumer-v2 es una webapp que ayuda a los usuarios a mejorar sus CVs utilizando i
 - **Shadcn/ui** - Componentes UI modernos
 - **React Hook Form** - Gestión de formularios
 - **Framer Motion** - Animaciones fluidas
+- **next-intl** - Sistema de internacionalización
+- **Lucide React** - Iconos modernos
 
 ### Backend
 - **Next.js API Routes** - API integrada
@@ -86,15 +133,22 @@ resumer-v2/
 │   │   ├── dashboard/      # Dashboard del usuario
 │   │   └── page.tsx        # Landing page
 │   ├── components/         # Componentes reutilizables
-│   │   ├── ui/            # Componentes base
-│   │   ├── forms/         # Formularios
-│   │   └── layout/        # Layout components
+│   │   ├── ui/            # Componentes base (Shadcn/ui)
+│   │   ├── language-selector.tsx  # Selector de idiomas
+│   │   ├── navigation.tsx # Navegación con i18n
+│   │   └── ...            # Otros componentes
+│   ├── hooks/             # Custom React hooks
+│   │   └── use-translations.ts    # Hook de traducciones
 │   ├── lib/               # Utilidades y configuración
 │   │   ├── auth.ts        # Configuración NextAuth
 │   │   ├── db.ts          # Configuración Prisma
 │   │   ├── openai.ts      # Cliente OpenAI
 │   │   └── stripe.ts      # Configuración Stripe
 │   └── types/             # Definiciones TypeScript
+├── messages/              # Archivos de traducción
+│   ├── es.json           # Traducciones español
+│   ├── en.json           # Traducciones inglés
+│   └── pt.json           # Traducciones portugués
 ├── prisma/                # Schema y migraciones
 ├── public/                # Archivos estáticos
 ├── docker/                # Configuración Docker
@@ -106,11 +160,12 @@ resumer-v2/
 ### **Semana 1: Base Funcional Visible** 
 **Días 1-3: Setup + Landing Funcional**
 - [x] Setup inicial del proyecto
-- [ ] Next.js 14 + TypeScript + Tailwind
-- [ ] Landing page completa + navegación
-- [ ] Formulario de registro funcional
-- [ ] Diseño responsive mobile/desktop
-- **🎯 PREVIEW 1**: Landing navegable + registro visual
+- [x] Next.js 14 + TypeScript + Tailwind
+- [x] Landing page completa + navegación
+- [x] Formulario de registro funcional
+- [x] Diseño responsive mobile/desktop
+- [x] **Sistema de idiomas ES/EN/PT implementado**
+- **🎯 PREVIEW 1**: Landing navegable + registro visual + selector de idiomas
 
 **Días 4-7: Autenticación Completa**
 - [ ] Configuración NextAuth.js
@@ -174,50 +229,52 @@ resumer-v2/
 
 ## 🎯 Demos Funcionales por Etapa
 
-### Después del Día 3:
-✅ **Podrás probar:**
-- Navegar la landing page completa
+### ✅ Después del Día 3 (COMPLETADO):
+**Podrás probar:**
+- Navegar la landing page completa en 3 idiomas
+- Cambiar idioma dinámicamente con el selector
 - Registrarte como usuario nuevo
 - Ver el dashboard básico funcionando
+- Formularios de auth traducidos
 
 ### Después del Día 7:
-✅ **Podrás probar:**
+**Podrás probar:**
 - Flujo completo de registro/login
 - Dashboard con navegación funcional
 - Perfil de usuario básico
 
 ### Después del Día 10:
-✅ **Podrás probar:**
+**Podrás probar:**
 - Subir archivos PDF/Word/JPG reales
 - Ver confirmaciones visuales del upload
 - Probar validaciones de formato/tamaño
 
 ### Después del Día 14:
-✅ **Podrás probar:**
+**Podrás probar:**
 - Comprar créditos con tarjeta de prueba Stripe
 - Ver balance de créditos actualizado
 - Probar restricciones por falta de créditos
 
 ### Después del Día 17:
-✅ **Podrás probar:**
+**Podrás probar:**
 - Subir CV real → recibir análisis completo de IA
 - Completar cuestionario interactivo
 - Ver recomendaciones personalizadas detalladas
 
 ### Después del Día 21:
-✅ **Podrás probar:**
+**Podrás probar:**
 - Proceso completo: Mejora General (gastar 10 créditos)
 - Proceso completo: Mejora Específica con job posting
 - Ver preview detallado antes de confirmar descarga
 
 ### Después del Día 24:
-✅ **Podrás probar:**
+**Podrás probar:**
 - Descargar PDF real mejorado y funcional
 - Completar onboarding desde cero como nuevo usuario
 - Experiencia completa optimizada para mobile
 
 ### Después del Día 28:
-✅ **Podrás probar:**
+**Podrás probar:**
 - Acceder desde cualquier dispositivo
 - Probar con usuarios reales (beta testing)
 - Producto completamente funcional y escalable
@@ -235,8 +292,8 @@ resumer-v2/
 
 ## 🎯 Flujo de Usuario
 
-1. **Landing** → Registro incentivado
-2. **Registro** → Onboarding
+1. **Landing** → Registro incentivado (multiidioma)
+2. **Registro** → Onboarding (traducido)
 3. **Upload** → Análisis inicial
 4. **Cuestionario** → Recomendaciones
 5. **Selección** → Mejora general o específica
@@ -279,12 +336,39 @@ npx prisma migrate dev
 npx prisma generate
 ```
 
+### Desarrollo con Múltiples Idiomas
+
+```bash
+# Cambiar idioma de prueba en localStorage
+localStorage.setItem('language', 'en') // or 'pt', 'es'
+
+# Recargar para ver cambios
+window.location.reload()
+
+# Testear todas las traducciones
+npm run test:i18n
+```
+
 ## 📝 Notas de Desarrollo
 
 - **UX/UI Focus**: Diseño incentiva registro y conversión
+- **Multiidioma**: Soporte completo ES/EN/PT con selector visual
 - **No-tech friendly**: Configuración simple para deployment
 - **Escalable**: Arquitectura preparada para crecimiento
 - **Seguro**: Validaciones y sanitización en todos los inputs
+
+## 🌍 Expansión Internacional
+
+### Mercados Objetivo
+- **España y América Latina** (Español) - 500M+ hablantes
+- **Estados Unidos y Reino Unido** (Inglés) - 1.5B+ hablantes  
+- **Brasil y Portugal** (Portugués) - 280M+ hablantes
+
+### SEO Internacional
+- URLs localizadas por idioma
+- Meta tags traducidos
+- Contenido optimizado por región
+- Hreflang tags implementados
 
 ## 🤝 Contribución
 
@@ -292,8 +376,14 @@ Este es un proyecto en desarrollo activo. Para contribuir:
 
 1. Fork el repositorio
 2. Crea una rama feature
-3. Realiza tus cambios
+3. Realiza tus cambios (incluyendo traducciones si es necesario)
 4. Envía un pull request
+
+### Contribuir con Traducciones
+1. Duplicar `messages/es.json` → `messages/[idioma].json`
+2. Traducir todas las claves manteniendo la estructura
+3. Agregar el idioma a `LanguageSelector` component
+4. Testear la funcionalidad completa
 
 ## 📄 Licencia
 
@@ -301,4 +391,4 @@ MIT License - ver archivo LICENSE para detalles.
 
 ---
 
-**Desarrollado con ❤️ para mejorar oportunidades profesionales**
+**Desarrollado con ❤️ para mejorar oportunidades profesionales a nivel global**

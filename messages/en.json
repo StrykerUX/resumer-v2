@@ -1,0 +1,176 @@
+{
+  "navigation": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "howItWorks": "How it Works",
+    "signIn": "Sign In",
+    "getStarted": "Get Started Free"
+  },
+  "hero": {
+    "badge": "AI-Powered Resume Enhancement",
+    "title": "Transform Your Resume with",
+    "titleHighlight": "AI Intelligence",
+    "description": "Get your resume analyzed by AI, receive personalized recommendations, and download an ATS-optimized version that gets you more interviews.",
+    "startAnalysis": "Start Free Analysis",
+    "viewSample": "View Sample Results",
+    "step1": {
+      "title": "Upload Your Resume",
+      "description": "PDF, Word, or image - we support all formats"
+    },
+    "step2": {
+      "title": "AI Analysis",
+      "description": "Get personalized recommendations and improvements"
+    },
+    "step3": {
+      "title": "Download Enhanced",
+      "description": "ATS-optimized resume ready for applications"
+    }
+  },
+  "features": {
+    "badge": "Features",
+    "title": "Everything You Need to Land Your Dream Job",
+    "description": "Our comprehensive suite of tools helps you create the perfect resume that stands out to both humans and AI systems.",
+    "aiAnalysis": {
+      "title": "AI-Powered Analysis",
+      "description": "Advanced AI analyzes your resume structure, content, and keywords for maximum impact."
+    },
+    "atsOptimization": {
+      "title": "ATS Optimization",
+      "description": "Ensure your resume passes Applicant Tracking Systems with optimized formatting."
+    },
+    "multipleFormats": {
+      "title": "Multiple Formats",
+      "description": "Upload PDF, Word documents, or even images of your resume for analysis."
+    },
+    "creditSystem": {
+      "title": "Credit System",
+      "description": "Flexible credit-based pricing. Pay only for what you use, no subscriptions."
+    },
+    "professionalPdfs": {
+      "title": "Professional PDFs",
+      "description": "Download beautifully formatted, professional PDFs with functional links."
+    },
+    "securePrivate": {
+      "title": "Secure & Private",
+      "description": "Your data is encrypted and secure. We never share your personal information."
+    }
+  },
+  "pricing": {
+    "badge": "Pricing",
+    "title": "Simple, Transparent Pricing",
+    "description": "Start free with 5 welcome credits. Choose a plan that fits your needs. No subscriptions, pay only for what you use.",
+    "starter": {
+      "name": "Starter",
+      "price": "$9.99",
+      "description": "Perfect for trying out our service",
+      "features": [
+        "50 credits included",
+        "General resume improvements",
+        "ATS optimization",
+        "PDF download",
+        "Email support"
+      ]
+    },
+    "professional": {
+      "name": "Professional",
+      "price": "$24.99",
+      "description": "Best value for job seekers",
+      "features": [
+        "150 credits included",
+        "General + targeted improvements",
+        "Multiple resume versions",
+        "Priority processing",
+        "Advanced ATS analysis",
+        "Priority support"
+      ]
+    },
+    "premium": {
+      "name": "Premium",
+      "price": "$69.99",
+      "description": "For professionals and recruiters",
+      "features": [
+        "500 credits included",
+        "Unlimited resume analysis",
+        "Custom templates",
+        "Bulk processing",
+        "API access",
+        "Dedicated support"
+      ]
+    },
+    "oneTime": "one-time",
+    "credits": "credits",
+    "getStarted": "Get Started",
+    "mostPopular": "Most Popular",
+    "freeCredits": "New users get 5 free credits to try our service!",
+    "guarantee": "Credits never expire • Secure payments by Stripe • 30-day money-back guarantee"
+  },
+  "cta": {
+    "title": "Ready to Land Your Dream Job?",
+    "description": "Join thousands of professionals who have enhanced their resumes with AI. Start your free analysis today and see the difference.",
+    "startAnalysis": "Start Free Analysis",
+    "watchDemo": "Watch Demo",
+    "stats": {
+      "resumesEnhanced": "Resumes Enhanced",
+      "interviewIncrease": "Interview Rate Increase",
+      "responseTime": "Average Response Time"
+    }
+  },
+  "footer": {
+    "tagline": "AI-powered resume enhancement for the modern job seeker.",
+    "product": "Product",
+    "company": "Company",
+    "support": "Support",
+    "features": "Features",
+    "pricing": "Pricing",
+    "api": "API",
+    "integrations": "Integrations",
+    "about": "About",
+    "blog": "Blog",
+    "careers": "Careers",
+    "contact": "Contact",
+    "helpCenter": "Help Center",
+    "privacyPolicy": "Privacy Policy",
+    "termsOfService": "Terms of Service",
+    "status": "Status",
+    "copyright": "© 2024 Resumer-v2. All rights reserved. Built with AI for the future of work."
+  },
+  "auth": {
+    "signin": {
+      "title": "Welcome back to",
+      "subtitle": "Sign in to your account to continue enhancing your resume",
+      "signIn": "Sign In",
+      "description": "Enter your credentials to access your account",
+      "email": "Email",
+      "emailPlaceholder": "Enter your email",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password",
+      "forgotPassword": "Forgot your password?",
+      "noAccount": "Don't have an account?",
+      "signUpHere": "Sign up here"
+    },
+    "signup": {
+      "title": "Join",
+      "subtitle": "Create your account and start enhancing your resume with AI",
+      "freeCredits": "Get 5 free credits on signup!",
+      "createAccount": "Create Account",
+      "description": "Fill in your details to get started",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "emailPlaceholder": "john@example.com",
+      "password": "Password",
+      "passwordPlaceholder": "Create a strong password",
+      "confirmPassword": "Confirm Password",
+      "confirmPasswordPlaceholder": "Confirm your password",
+      "haveAccount": "Already have an account?",
+      "signInHere": "Sign in here",
+      "termsAgreement": "By creating an account, you agree to our",
+      "termsOfService": "Terms of Service",
+      "and": "and",
+      "privacyPolicy": "Privacy Policy"
+    }
+  },
+  "common": {
+    "backToHome": "Back to Home"
+  }
+}
