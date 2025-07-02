@@ -8,8 +8,19 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { useTranslations } from "@/hooks/use-translations"
+import { Space_Grotesk, Pixelify_Sans } from 'next/font/google'
 import Link from "next/link"
-import { ArrowLeft, Gift, Loader2 } from "lucide-react"
+import { ArrowLeft, Gift, Loader2, Cpu, UserPlus } from "lucide-react"
+
+const spaceGrotesk = Space_Grotesk({ 
+  subsets: ['latin'],
+  variable: '--font-space-grotesk'
+})
+
+const pixelifySans = Pixelify_Sans({ 
+  subsets: ['latin'],
+  variable: '--font-pixelify-sans'
+})
 
 export default function SignUpPage() {
   const { t, isLoading: translationsLoading } = useTranslations()
@@ -69,46 +80,68 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <Link href="/" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-8">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t('common.backToHome')}
-          </Link>
-          
-          <h2 className="text-3xl font-bold text-gray-900">
-            {t('auth.signup.title')} <span className="text-blue-600">Resumer-v2</span>
-          </h2>
-          <p className="mt-2 text-gray-600">
-            {t('auth.signup.subtitle')}
-          </p>
-          
-          <Badge variant="secondary" className="mt-4">
-            <Gift className="w-4 h-4 mr-2" />
-            {t('auth.signup.freeCredits')}
-          </Badge>
-        </div>
+    <div className={`${pixelifySans.variable} ${spaceGrotesk.variable} min-h-screen bg-[#F7F7F5] text-[#1A1A1A] relative overflow-hidden`}>
+      {/* Grid pattern futurista de fondo */}
+      <div className="absolute inset-0 opacity-5">
+        <div className="w-full h-full" style={{
+          backgroundImage: `
+            linear-gradient(#D97706 1px, transparent 1px),
+            linear-gradient(90deg, #D97706 1px, transparent 1px)
+          `,
+          backgroundSize: '24px 24px'
+        }}></div>
+      </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>{t('auth.signup.createAccount')}</CardTitle>
-            <CardDescription>
-              {t('auth.signup.description')}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
+      <div className="relative z-10 flex items-center justify-center min-h-screen py-12">
+        <div className="w-[95%] max-w-md space-y-8" style={{maxWidth: '480px'}}>
+          <div className="text-center">
+            <Link href="/" className="font-space-grotesk inline-flex items-center text-sm text-[#6B6B6B] hover:text-[#1A1A1A] mb-8 font-medium">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t('common.backToHome')}
+            </Link>
+            
+            {/* Indicador sutil de tecnología */}
+            <p className="text-sm text-[#6B6B6B] font-medium mb-6 flex items-center justify-center">
+              <Cpu className="w-3 h-3 mr-2 text-[#D97706]" />
+              Plataforma de Optimización IA
+            </p>
+            
+            <h2 className="font-pixelify-sans text-3xl md:text-4xl font-bold text-[#1A1A1A] mb-4">
+              {t('auth.signup.title').toUpperCase()}
+            </h2>
+            <p className="font-space-grotesk text-lg text-[#6B6B6B] font-medium mb-6">
+              {t('auth.signup.subtitle')}
+            </p>
+            
+            <div className="inline-flex items-center px-6 py-3 bg-[#D97706] text-white text-sm font-bold mb-8 rounded-xl">
+              <Gift className="w-4 h-4 mr-2" />
+              {t('auth.signup.freeCredits')}
+            </div>
+          </div>
+
+          <div className="bg-white border-2 border-[#E5E5E5] p-8 hover:border-[#D97706] transition-all rounded-2xl hover:shadow-[0_4px_16px_rgba(217,151,6,0.12),0_12px_32px_rgba(217,151,6,0.08)]" style={{boxShadow: '0 1px 3px rgba(26,26,26,0.06), 0 4px 12px rgba(26,26,26,0.04)'}}>
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-[#D97706] mb-4 flex items-center justify-center mx-auto rounded-xl">
+                <UserPlus className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="font-pixelify-sans text-xl font-bold text-[#1A1A1A] mb-2">{t('auth.signup.createAccount').toUpperCase()}</h3>
+              <p className="font-space-grotesk text-[#6B6B6B] font-medium">
+                {t('auth.signup.description')}
+              </p>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
-                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded">
+                <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl">
                   {error}
                 </div>
               )}
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">{t('auth.signup.firstName')}</Label>
+                  <Label className="font-space-grotesk font-bold text-[#1A1A1A]" htmlFor="firstName">{t('auth.signup.firstName')}</Label>
                   <Input
+                    className="border-2 border-[#E5E5E5] focus:border-[#D97706] font-space-grotesk"
                     id="firstName"
                     placeholder="Juan"
                     value={firstName}
@@ -117,8 +150,9 @@ export default function SignUpPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">{t('auth.signup.lastName')}</Label>
+                  <Label className="font-space-grotesk font-bold text-[#1A1A1A]" htmlFor="lastName">{t('auth.signup.lastName')}</Label>
                   <Input
+                    className="border-2 border-[#E5E5E5] focus:border-[#D97706] font-space-grotesk"
                     id="lastName"
                     placeholder="Pérez"
                     value={lastName}
@@ -129,8 +163,9 @@ export default function SignUpPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="email">{t('auth.signup.email')}</Label>
+                <Label className="font-space-grotesk font-bold text-[#1A1A1A]" htmlFor="email">{t('auth.signup.email')}</Label>
                 <Input
+                  className="border-2 border-[#E5E5E5] focus:border-[#D97706] font-space-grotesk"
                   id="email"
                   type="email"
                   placeholder={t('auth.signup.emailPlaceholder')}
@@ -141,8 +176,9 @@ export default function SignUpPage() {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password">{t('auth.signup.password')}</Label>
+                <Label className="font-space-grotesk font-bold text-[#1A1A1A]" htmlFor="password">{t('auth.signup.password')}</Label>
                 <Input
+                  className="border-2 border-[#E5E5E5] focus:border-[#D97706] font-space-grotesk"
                   id="password"
                   type="password"
                   placeholder={t('auth.signup.passwordPlaceholder')}
@@ -154,8 +190,9 @@ export default function SignUpPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">{t('auth.signup.confirmPassword')}</Label>
+                <Label className="font-space-grotesk font-bold text-[#1A1A1A]" htmlFor="confirmPassword">{t('auth.signup.confirmPassword')}</Label>
                 <Input
+                  className="border-2 border-[#E5E5E5] focus:border-[#D97706] font-space-grotesk"
                   id="confirmPassword"
                   type="password"
                   placeholder={t('auth.signup.confirmPasswordPlaceholder')}
@@ -165,7 +202,11 @@ export default function SignUpPage() {
                 />
               </div>
 
-              <Button className="w-full" type="submit" disabled={isLoading}>
+              <Button 
+                className="font-space-grotesk w-full bg-[#D97706] text-white py-3 text-lg font-bold hover:bg-[#B45309] transition-all rounded-xl" 
+                type="submit" 
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -176,26 +217,26 @@ export default function SignUpPage() {
                 )}
               </Button>
 
-              <div className="text-center text-sm text-gray-600">
+              <div className="text-center font-space-grotesk text-sm text-[#6B6B6B] font-medium">
                 {t('auth.signup.haveAccount')}{" "}
-                <Link href="/auth/signin" className="text-blue-600 hover:text-blue-500">
+                <Link href="/auth/signin" className="text-[#D97706] hover:text-[#B45309] font-bold">
                   {t('auth.signup.signInHere')}
                 </Link>
               </div>
 
-              <div className="text-xs text-gray-500 text-center">
+              <div className="font-space-grotesk text-xs text-[#6B6B6B] text-center">
                 {t('auth.signup.termsAgreement')}{" "}
-                <Link href="#" className="text-blue-600 hover:text-blue-500">
+                <Link href="#" className="text-[#D97706] hover:text-[#B45309]">
                   {t('auth.signup.termsOfService')}
                 </Link>{" "}
                 {t('auth.signup.and')}{" "}
-                <Link href="#" className="text-blue-600 hover:text-blue-500">
+                <Link href="#" className="text-[#D97706] hover:text-[#B45309]">
                   {t('auth.signup.privacyPolicy')}
                 </Link>
               </div>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   )
