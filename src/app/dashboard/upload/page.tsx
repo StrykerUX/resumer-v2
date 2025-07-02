@@ -1,6 +1,6 @@
 'use client'
 
-import { FileUpload } from '@/components/upload/file-upload'
+import { FileUploadR2 } from '@/components/upload/file-upload-r2'
 import { useTranslations } from '@/hooks/use-translations'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
@@ -28,7 +28,7 @@ export default function UploadPage() {
           </p>
         </div>
 
-        <FileUpload />
+        <FileUploadR2 />
       </div>
     </div>
   )
