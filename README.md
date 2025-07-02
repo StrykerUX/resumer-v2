@@ -197,12 +197,15 @@ resumer-v2/
 - [x] Barra de progreso en tiempo real
 - **🎯 PREVIEW 3**: Subir archivos reales + confirmaciones ✅
 
-**Días 11-14: Créditos + Pagos Funcionales**
-- [ ] Sistema de créditos en UI
-- [ ] Integración completa con Stripe
-- [ ] Comprar créditos (modo test)
+**Días 11-14: Créditos + Pagos Multi-Moneda**
+- [ ] Sistema de créditos en UI con balance real
+- [ ] Detección automática de país/moneda (IP + headers)
+- [ ] Integración Stripe con 6 productos (MXN + USD)
+- [ ] UI de pricing con ambas monedas
+- [ ] Comprar créditos en moneda detectada (modo test)
+- [ ] Webhooks Stripe unificados para ambas monedas
 - [ ] Balance actualizado en tiempo real
-- **🎯 PREVIEW 4**: Comprar créditos + ver balance
+- **🎯 PREVIEW 4**: Comprar créditos en MXN/USD + ver balance
 
 ---
 
@@ -299,10 +302,70 @@ resumer-v2/
 - **Registro gratuito**: 5 créditos de bienvenida
 - **Mejora general**: 10 créditos
 - **Mejora específica**: 15 créditos
-- **Paquetes de créditos**:
-  - Básico: 50 créditos - $9.99
-  - Pro: 150 créditos - $24.99
-  - Premium: 500 créditos - $69.99
+
+### Planes de Créditos Multi-Moneda
+> **Moneda Principal**: MXN (México) | **Moneda Secundaria**: USD (Internacional)
+> **Detección Automática**: Por geolocalización IP + headers del navegador
+
+#### **🚀 Plan Básico**
+- **50 créditos**
+- **MXN**: $69 pesos mexicanos
+- **USD**: $3.70 dólares estadounidenses
+- **Costo por crédito**: $1.38 MXN / $0.074 USD
+- **Ideal para**: Usuarios que prueban el servicio
+
+#### **⭐ Plan Pro (Más Popular)**
+- **120 créditos** 
+- **MXN**: $129 pesos mexicanos
+- **USD**: $6.90 dólares estadounidenses
+- **Costo por crédito**: $1.07 MXN / $0.058 USD
+- **Descuento**: 22% vs Plan Básico
+- **Ideal para**: Job seekers activos
+
+#### **💎 Plan Premium**
+- **200 créditos**
+- **MXN**: $199 pesos mexicanos  
+- **USD**: $10.70 dólares estadounidenses
+- **Costo por crédito**: $0.99 MXN / $0.054 USD
+- **Descuento**: 28% vs Plan Básico
+- **Ideal para**: Profesionales que optimizan múltiples CVs
+
+### Análisis de Costos y Rentabilidad
+
+#### **Costos por Operación de IA (OpenAI GPT-4o)**
+- **Análisis inicial**: ~$0.50 MXN por CV
+- **Mejora general**: ~$0.72 MXN por CV  
+- **Mejora específica**: ~$0.87 MXN por CV
+
+#### **Ejemplo Plan Pro ($129 MXN / 120 créditos)**
+```
+Uso típico:
+• 1 Análisis inicial: $0.50 MXN
+• 8 Mejoras generales (80 créditos): $5.76 MXN
+• 2-3 Mejoras específicas (40 créditos): $2.08 MXN
+• Stripe fees (3.6%): $4.64 MXN
+
+Total costos: ~$13 MXN
+Margen bruto: ~90%
+```
+
+### Estrategia de Monedas
+
+#### **Detección Automática**
+1. **Geolocalización por IP**: Detecta país del usuario
+2. **Headers del navegador**: Fallback con Accept-Language
+3. **Selector manual**: Usuario puede cambiar moneda
+4. **Persistencia**: Preferencia guardada en localStorage
+
+#### **Configuración Stripe**
+- **6 productos**: 3 planes × 2 monedas
+- **Webhooks unificados**: Maneja ambas monedas
+- **Conversión automática**: Tipos de cambio actualizados
+
+#### **UX Multi-Moneda**
+- **Precio principal**: Moneda detectada (grande)
+- **Precio secundario**: Otra moneda (pequeño)
+- **Ejemplo**: "$129 MXN ($6.90 USD)" para usuarios mexicanos
 
 ## 🎯 Flujo de Usuario
 
@@ -337,12 +400,26 @@ R2_BUCKET_NAME="resumer-cvs"
 R2_ENDPOINT="https://your-account-id.r2.cloudflarestorage.com"
 R2_PUBLIC_URL="https://your-custom-domain.com"
 
-# OpenAI (próximamente)
+# OpenAI
 OPENAI_API_KEY="sk-..."
 
-# Stripe (próximamente)
+# Stripe Multi-Moneda
 STRIPE_SECRET_KEY="sk_test_..."
 STRIPE_PUBLISHABLE_KEY="pk_test_..."
+STRIPE_WEBHOOK_SECRET="whsec_..."
+
+# Precios Stripe (MXN)
+STRIPE_PRICE_BASIC_MXN="price_basic_69mxn"
+STRIPE_PRICE_PRO_MXN="price_pro_129mxn"
+STRIPE_PRICE_PREMIUM_MXN="price_premium_199mxn"
+
+# Precios Stripe (USD)
+STRIPE_PRICE_BASIC_USD="price_basic_370usd"
+STRIPE_PRICE_PRO_USD="price_pro_690usd"
+STRIPE_PRICE_PREMIUM_USD="price_premium_1070usd"
+
+# Geolocalización (opcional)
+IPAPI_KEY="your_ipapi_key" # Para detección de país
 ```
 
 ### Comandos de Desarrollo
@@ -433,6 +510,120 @@ npm run test:i18n
 - **Escalabilidad**: Sin límites artificiales
 - **CDN**: Cloudflare CDN incluido sin costo extra
 
+## 💳 Sistema de Pagos Multi-Moneda (Stripe)
+
+### ¿Por qué Multi-Moneda?
+- **Mercado principal**: México (MXN)
+- **Expansión internacional**: USD para resto del mundo
+- **UX optimizada**: Precios en moneda local del usuario
+- **Conversiones mejoradas**: Precios familiares = menos fricción
+
+### Arquitectura Técnica
+
+#### **1. Detección de Moneda**
+```typescript
+// Hook personalizado para detectar y manejar moneda
+function useCurrency() {
+  // 1. Detección por IP (geolocalización)
+  // 2. Fallback por Accept-Language headers
+  // 3. Override manual por usuario
+  // 4. Persistencia en localStorage
+}
+```
+
+#### **2. Configuración Stripe**
+```typescript
+// 6 productos en Stripe Dashboard
+const STRIPE_PRICES = {
+  // MXN (Pesos Mexicanos)
+  basic_mxn: "price_basic_69mxn",     // $69 MXN - 50 créditos
+  pro_mxn: "price_pro_129mxn",        // $129 MXN - 120 créditos  
+  premium_mxn: "price_premium_199mxn", // $199 MXN - 200 créditos
+  
+  // USD (Dólares)
+  basic_usd: "price_basic_370usd",     // $3.70 USD - 50 créditos
+  pro_usd: "price_pro_690usd",         // $6.90 USD - 120 créditos
+  premium_usd: "price_premium_1070usd" // $10.70 USD - 200 créditos
+}
+```
+
+#### **3. API Endpoints Multi-Moneda**
+```
+POST /api/credits/purchase
+• Recibe: plan + currency
+• Crea: Stripe checkout session en moneda correcta
+• Retorna: URL de checkout
+
+POST /api/stripe/webhooks  
+• Maneja: payment_intent.succeeded para MXN y USD
+• Actualiza: créditos del usuario en base de datos
+• Crea: registro en CreditTransaction
+```
+
+#### **4. UX de Precios**
+- **Precio principal**: Moneda detectada (texto grande)
+- **Precio secundario**: Otra moneda (texto pequeño)
+- **Ejemplo para México**: "$129 MXN ($6.90 USD)"
+- **Ejemplo para USA**: "$6.90 USD ($129 MXN)"
+
+### Flujo Técnico Completo
+
+1. **Usuario llega al sitio**
+   ```
+   IP → Geolocalización → País → Moneda preferida
+   ```
+
+2. **UI se actualiza dinámicamente**
+   ```
+   Pricing cards muestran precios en moneda detectada
+   ```
+
+3. **Usuario hace clic en "Comprar"**
+   ```
+   Frontend → API → Stripe Checkout (moneda correcta)
+   ```
+
+4. **Pago exitoso**
+   ```
+   Stripe → Webhook → Actualizar créditos → Usuario ve balance
+   ```
+
+### Consideraciones de Implementación
+
+#### **Stripe Configuration**
+- **Modo Test**: Para desarrollo con tarjetas de prueba
+- **Webhooks**: Endpoint único maneja ambas monedas
+- **Currency validation**: Validar moneda antes de crear session
+
+#### **Database Schema**
+```sql
+-- CreditTransaction ya está preparado
+model CreditTransaction {
+  amount      Int      // Créditos agregados
+  stripeSessionId String?  // Para tracking
+  currency    String?  // "MXN" o "USD" 
+  priceId     String?  // Stripe price ID usado
+}
+```
+
+#### **Error Handling**
+- **IP detection falla**: Fallback a USD
+- **Stripe falla**: Mostrar error user-friendly
+- **Webhook falla**: Retry mechanism
+
+#### **Testing Strategy**
+```bash
+# Tarjetas de prueba Stripe
+4242 4242 4242 4242  # Éxito (cualquier moneda)
+4000 0000 0000 0002  # Decline
+4000 0000 0000 9995  # Fondos insuficientes
+
+# Testing multi-moneda
+• VPN México → Verificar MXN pricing
+• VPN USA → Verificar USD pricing  
+• Cambio manual → Verificar persistencia
+```
+
 ## 📊 Estado Actual del Proyecto (Día 10/28)
 
 ### ✅ **Completado (Semana 1-2):**
@@ -446,11 +637,12 @@ npm run test:i18n
 - **Base de datos** Prisma con esquema completo
 - **Drag & drop** completamente funcional
 
-### 🔄 **En Progreso (Próxima Semana):**
-- Sistema de créditos en UI
-- Integración completa con Stripe
-- Cliente OpenAI configurado
-- Análisis de CV con IA
+### 🔄 **En Progreso (Días 11-14):**
+- **Sistema de créditos multi-moneda** en UI con balance real
+- **Detección automática país/moneda** (IP + headers)
+- **Integración Stripe completa** con 6 productos (MXN + USD)
+- **Pricing dinámico** que muestra ambas monedas
+- **Webhooks unificados** para procesar pagos en cualquier moneda
 
 ### ⏳ **Pendiente:**
 - Mejoras de IA (General y Específica)
