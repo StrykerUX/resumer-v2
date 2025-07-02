@@ -20,7 +20,9 @@ Resumer-v2 es una webapp que ayuda a los usuarios a mejorar sus CVs utilizando i
 
 ### 📁 Gestión de Archivos
 - Subida de archivos: PDF, JPG, Word
+- Upload directo a Cloudflare R2
 - Procesamiento seguro de documentos
+- Vista previa de archivos subidos
 - Análisis automático con IA
 
 ### 🤖 Integración con IA
@@ -114,7 +116,7 @@ const MyComponent = () => {
 ### Servicios Externos
 - **OpenAI API** - Procesamiento de texto con IA
 - **Stripe** - Procesamiento de pagos
-- **Uploadthing** - Gestión de archivos
+- **Cloudflare R2** - Almacenamiento de archivos con CDN global
 - **Puppeteer** - Generación de PDFs
 
 ### DevOps & Deployment
@@ -129,19 +131,26 @@ resumer-v2/
 ├── src/
 │   ├── app/                 # App Router (Next.js 14)
 │   │   ├── api/            # API Routes
+│   │   │   ├── auth/       # Endpoints de autenticación
+│   │   │   ├── upload/     # Upload con Cloudflare R2
+│   │   │   └── resumes/    # Gestión de currículums
 │   │   ├── auth/           # Páginas de autenticación
 │   │   ├── dashboard/      # Dashboard del usuario
+│   │   │   ├── upload/     # Página de upload
+│   │   │   └── resumes/    # Vista previa de CVs
 │   │   └── page.tsx        # Landing page
 │   ├── components/         # Componentes reutilizables
 │   │   ├── ui/            # Componentes base (Shadcn/ui)
+│   │   ├── upload/        # Componentes de upload R2
 │   │   ├── language-selector.tsx  # Selector de idiomas
 │   │   ├── navigation.tsx # Navegación con i18n
-│   │   └── ...            # Otros componentes
+│   │   └── providers/     # Context providers
 │   ├── hooks/             # Custom React hooks
 │   │   └── use-translations.ts    # Hook de traducciones
 │   ├── lib/               # Utilidades y configuración
 │   │   ├── auth.ts        # Configuración NextAuth
-│   │   ├── db.ts          # Configuración Prisma
+│   │   ├── prisma.ts      # Cliente Prisma
+│   │   ├── r2-client.ts   # Cliente Cloudflare R2
 │   │   ├── openai.ts      # Cliente OpenAI
 │   │   └── stripe.ts      # Configuración Stripe
 │   └── types/             # Definiciones TypeScript
@@ -152,6 +161,8 @@ resumer-v2/
 ├── prisma/                # Schema y migraciones
 ├── public/                # Archivos estáticos
 ├── docker/                # Configuración Docker
+├── scripts/               # Scripts de utilidades
+│   └── setup-r2-cors.js  # Configuración CORS para R2
 └── docs/                  # Documentación
 ```
 
@@ -168,21 +179,23 @@ resumer-v2/
 - **🎯 PREVIEW 1**: Landing navegable + registro visual + selector de idiomas
 
 **Días 4-7: Autenticación Completa**
-- [ ] Configuración NextAuth.js
-- [ ] Sistema login/registro funcionando  
-- [ ] Dashboard básico del usuario
-- [ ] Setup Prisma + PostgreSQL
-- **🎯 PREVIEW 2**: Flujo completo landing → registro → dashboard
+- [x] Configuración NextAuth.js
+- [x] Sistema login/registro funcionando  
+- [x] Dashboard básico del usuario
+- [x] Setup Prisma + SQLite (desarrollo)
+- **🎯 PREVIEW 2**: Flujo completo landing → registro → dashboard ✅
 
 ---
 
 ### **Semana 2: Funcionalidades Core Visibles**
 **Días 8-10: Upload + Vista Previa**
-- [ ] Integración UploadThing
-- [ ] Drag & drop de archivos funcionando
-- [ ] Procesamiento PDF/Word/JPG 
-- [ ] Validaciones visuales de archivos
-- **🎯 PREVIEW 3**: Subir archivos reales + confirmaciones
+- [x] Integración Cloudflare R2 (migrado desde UploadThing)
+- [x] Drag & drop de archivos funcionando
+- [x] Procesamiento PDF/Word/JPG con upload directo
+- [x] Validaciones visuales de archivos
+- [x] Vista previa de archivos subidos
+- [x] Barra de progreso en tiempo real
+- **🎯 PREVIEW 3**: Subir archivos reales + confirmaciones ✅
 
 **Días 11-14: Créditos + Pagos Funcionales**
 - [ ] Sistema de créditos en UI
@@ -229,25 +242,26 @@ resumer-v2/
 
 ## 🎯 Demos Funcionales por Etapa
 
-### ✅ Después del Día 3 (COMPLETADO):
+### ✅ Después del Día 7 (COMPLETADO):
 **Podrás probar:**
 - Navegar la landing page completa en 3 idiomas
 - Cambiar idioma dinámicamente con el selector
-- Registrarte como usuario nuevo
+- Registrarte como usuario nuevo y hacer login
 - Ver el dashboard básico funcionando
 - Formularios de auth traducidos
-
-### Después del Día 7:
-**Podrás probar:**
 - Flujo completo de registro/login
 - Dashboard con navegación funcional
-- Perfil de usuario básico
+- Sistema de sesiones con NextAuth.js
 
-### Después del Día 10:
+### ✅ Después del Día 10 (COMPLETADO):
 **Podrás probar:**
-- Subir archivos PDF/Word/JPG reales
+- Subir archivos PDF/Word/JPG reales a Cloudflare R2
 - Ver confirmaciones visuales del upload
 - Probar validaciones de formato/tamaño
+- Upload directo con barra de progreso
+- Vista previa detallada de archivos subidos
+- Navegación entre dashboard y upload
+- Drag & drop completamente funcional
 
 ### Después del Día 14:
 **Podrás probar:**
@@ -309,13 +323,26 @@ resumer-v2/
 
 ### Variables de Entorno
 ```env
-DATABASE_URL=
-NEXTAUTH_SECRET=
-NEXTAUTH_URL=
-OPENAI_API_KEY=
-STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
-UPLOADTHING_SECRET=
+# Database
+DATABASE_URL="file:./dev.db"
+
+# NextAuth
+NEXTAUTH_SECRET="dev-secret-key-change-in-production"
+NEXTAUTH_URL="http://localhost:3000"
+
+# Cloudflare R2
+R2_ACCESS_KEY_ID="your_r2_access_key_id"
+R2_SECRET_ACCESS_KEY="your_r2_secret_access_key"
+R2_BUCKET_NAME="resumer-cvs"
+R2_ENDPOINT="https://your-account-id.r2.cloudflarestorage.com"
+R2_PUBLIC_URL="https://your-custom-domain.com"
+
+# OpenAI (próximamente)
+OPENAI_API_KEY="sk-..."
+
+# Stripe (próximamente)
+STRIPE_SECRET_KEY="sk_test_..."
+STRIPE_PUBLISHABLE_KEY="pk_test_..."
 ```
 
 ### Comandos de Desarrollo
@@ -334,6 +361,9 @@ npx prisma migrate dev
 
 # Generar cliente Prisma
 npx prisma generate
+
+# Configurar CORS en Cloudflare R2
+node scripts/setup-r2-cors.js
 ```
 
 ### Desarrollo con Múltiples Idiomas
@@ -349,10 +379,92 @@ window.location.reload()
 npm run test:i18n
 ```
 
+## ☁️ Cloudflare R2 Setup
+
+### ¿Por qué Cloudflare R2?
+- **Costos más bajos**: Sin costos de egress, solo almacenamiento
+- **CDN global**: Entrega rápida desde edge locations mundiales
+- **Control total**: Configuración de CORS, headers, políticas de acceso
+- **Escalabilidad**: Compatible con S3 API, fácil migración
+- **Rendimiento**: Upload directo desde browser, sin pasar por servidor
+
+### Configuración del Bucket R2
+
+1. **Crear bucket en Cloudflare Dashboard**
+   ```bash
+   # Ve a: https://dash.cloudflare.com/
+   # → R2 Object Storage → Create bucket
+   # Nombre: resumer-cvs
+   # Región: Automatic
+   ```
+
+2. **Obtener credenciales API**
+   ```bash
+   # Ve a: https://dash.cloudflare.com/profile/api-tokens
+   # → Create Token → Custom token
+   # Permisos: Account:Cloudflare R2:Edit
+   # Account Resources: Include - All accounts
+   ```
+
+3. **Configurar variables de entorno**
+   ```env
+   R2_ACCESS_KEY_ID="tu_access_key_id"
+   R2_SECRET_ACCESS_KEY="tu_secret_access_key" 
+   R2_BUCKET_NAME="resumer-cvs"
+   R2_ENDPOINT="https://tu-account-id.r2.cloudflarestorage.com"
+   R2_PUBLIC_URL="https://tu-dominio-personalizado.com"
+   ```
+
+4. **Configurar CORS automáticamente**
+   ```bash
+   node scripts/setup-r2-cors.js
+   ```
+
+### Flujo de Upload R2
+1. **Frontend**: Solicita pre-signed URL al backend
+2. **Backend**: Genera URL firmada con AWS SDK
+3. **Upload directo**: Browser → R2 (sin pasar por servidor)
+4. **Confirmación**: Backend actualiza estado en base de datos
+
+### Ventajas vs UploadThing
+- **Costo**: ~90% más económico para almacenamiento
+- **Velocidad**: Upload directo, sin proxy
+- **Control**: Configuración completa de bucket
+- **Escalabilidad**: Sin límites artificiales
+- **CDN**: Cloudflare CDN incluido sin costo extra
+
+## 📊 Estado Actual del Proyecto (Día 10/28)
+
+### ✅ **Completado (Semana 1-2):**
+- **Internacionalización completa** (ES/EN/PT) con selector visual
+- **Sistema de autenticación** con NextAuth.js funcional
+- **Landing page responsive** con navegación multiidioma
+- **Dashboard de usuario** con estadísticas básicas
+- **Upload de archivos** con Cloudflare R2 y barra de progreso
+- **Vista previa de CVs** subidos con detalles completos
+- **Validaciones** de archivos (tipo, tamaño, formato)
+- **Base de datos** Prisma con esquema completo
+- **Drag & drop** completamente funcional
+
+### 🔄 **En Progreso (Próxima Semana):**
+- Sistema de créditos en UI
+- Integración completa con Stripe
+- Cliente OpenAI configurado
+- Análisis de CV con IA
+
+### ⏳ **Pendiente:**
+- Mejoras de IA (General y Específica)
+- Generación de PDFs con Puppeteer
+- Onboarding guiado
+- Deploy en producción
+
+### 🎯 **Progreso del Roadmap: 35% (10/28 días)**
+
 ## 📝 Notas de Desarrollo
 
 - **UX/UI Focus**: Diseño incentiva registro y conversión
 - **Multiidioma**: Soporte completo ES/EN/PT con selector visual
+- **Upload Optimizado**: Cloudflare R2 para máximo rendimiento
 - **No-tech friendly**: Configuración simple para deployment
 - **Escalable**: Arquitectura preparada para crecimiento
 - **Seguro**: Validaciones y sanitización en todos los inputs
