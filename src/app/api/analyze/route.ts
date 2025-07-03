@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { analyzeCV } from '@/lib/openai';
-import { processFile, validateCVContent, cleanCVText } from '@/lib/file-processor';
+import { CVProcessor, validateCVContent, cleanCVText, getProcessingInfo } from '@/lib/file-processor';
 
 const ANALYSIS_COST = 5; // Costo en créditos para análisis
 
@@ -75,8 +75,12 @@ export async function POST(request: NextRequest) {
     const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
     console.log('✅ Archivo descargado, tamaño:', fileBuffer.length, 'bytes');
 
-    // Procesar el archivo en memoria del servidor
-    const processedFile = await processFile(fileBuffer, resume.originalName, resume.mimeType);
+    // Procesar el archivo usando el nuevo sistema híbrido
+    const cvProcessor = new CVProcessor();
+    const processedFile = await cvProcessor.processCV(fileBuffer, resume.originalName, resume.mimeType);
+    
+    // Mostrar información del método de procesamiento usado
+    console.log('📊', getProcessingInfo(processedFile));
 
     // Validar contenido
     const validation = validateCVContent(processedFile);
