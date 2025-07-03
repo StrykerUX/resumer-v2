@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       data: {
         userId: session.user.id,
         originalName: fileName,
-        fileUrl: `${R2_CONFIG.publicUrl}/${uniqueFileName}`, // URL final
+        fileUrl: `${R2_CONFIG.publicUrl}/${uniqueFileName}`, // URL base para object key
         fileSize: fileSize,
         mimeType: fileType,
         status: 'uploading', // Estado inicial

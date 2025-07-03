@@ -52,12 +52,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
     }
 
-    console.log('📥 Descargando archivo desde R2:', resume.fileUrl);
+    console.log('🔒 Generando URL pre-firmada para descarga segura desde R2');
 
-    // Descargar archivo desde R2 en el servidor
-    const fileResponse = await fetch(resume.fileUrl);
+    // Usar funciones helper para mayor seguridad y limpieza
+    const { generatePresignedDownloadUrl, extractObjectKey } = await import('@/lib/r2-client');
+
+    // Extraer object key desde la URL almacenada
+    const objectKey = extractObjectKey(resume.fileUrl);
+    console.log('🔑 Object key:', objectKey);
+
+    // Generar URL pre-firmada con expiración de 5 minutos
+    const presignedUrl = await generatePresignedDownloadUrl(objectKey, 300);
+    console.log('✅ URL pre-firmada generada (expires in 5 min)');
+
+    // Descargar archivo usando URL pre-firmada temporal
+    const fileResponse = await fetch(presignedUrl);
     if (!fileResponse.ok) {
-      throw new Error('No se pudo descargar el archivo desde R2');
+      console.error('❌ Error descargando:', fileResponse.status, fileResponse.statusText);
+      throw new Error(`No se pudo descargar el archivo desde R2: ${fileResponse.status} ${fileResponse.statusText}`);
     }
 
     const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
