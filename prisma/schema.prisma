@@ -114,6 +114,8 @@ model CreditTransaction {
   type        String   // "purchase", "usage", "welcome_bonus"
   description String?
   stripeSessionId String?
+  currency    String?  // "MXN" o "USD" 
+  priceId     String?  // Stripe price ID usado
   createdAt   DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)

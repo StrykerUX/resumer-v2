@@ -8,8 +8,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge'
 import { LanguageSelector } from '@/components/language-selector'
 import { useTranslations } from '@/hooks/use-translations'
+import { useCredits } from '@/hooks/use-credits'
+import { useCurrency } from '@/hooks/use-currency'
+import { PRICE_CONFIG } from '@/lib/stripe-client'
 import { Space_Grotesk, Pixelify_Sans } from 'next/font/google'
-import { Loader2, CreditCard, FileText, Upload, BarChart3, LogOut, Cpu, Brain } from 'lucide-react'
+import { Loader2, CreditCard, FileText, Upload, BarChart3, LogOut, Cpu, Brain, AlertCircle } from 'lucide-react'
 
 const spaceGrotesk = Space_Grotesk({ 
   subsets: ['latin'],
@@ -24,6 +27,8 @@ const pixelifySans = Pixelify_Sans({
 export default function DashboardPage() {
   const { data: session, status } = useSession()
   const { t, isLoading: translationsLoading } = useTranslations()
+  const { credits, isLoading: creditsLoading, error: creditsError, refreshCredits } = useCredits()
+  const { currency, formatPrice } = useCurrency()
   const router = useRouter()
 
   useEffect(() => {
@@ -113,10 +118,26 @@ export default function DashboardPage() {
               <h3 className="font-space-grotesk text-sm font-bold text-[#1A1A1A]">CRÉDITOS DISPONIBLES</h3>
               <CreditCard className="h-4 w-4 text-[#D97706]" />
             </div>
-            <div className="font-pixelify-sans text-3xl font-bold text-[#D97706] mb-2">5</div>
+            <div className="flex items-center gap-2 mb-2">
+              {creditsLoading ? (
+                <Loader2 className="w-6 h-6 text-[#D97706] animate-spin" />
+              ) : creditsError ? (
+                <AlertCircle className="w-6 h-6 text-red-500" />
+              ) : (
+                <div className="font-pixelify-sans text-3xl font-bold text-[#D97706]">{credits}</div>
+              )}
+            </div>
             <p className="font-space-grotesk text-xs text-[#6B6B6B] font-medium">
-              Créditos de bienvenida
+              {creditsError ? 'Error al cargar' : credits === 5 ? 'Créditos de bienvenida' : 'Créditos disponibles'}
             </p>
+            {creditsError && (
+              <button 
+                onClick={refreshCredits}
+                className="font-space-grotesk text-xs text-[#D97706] hover:text-[#B45309] mt-1 underline"
+              >
+                Reintentar
+              </button>
+            )}
           </div>
 
           <div className="bg-white border-2 border-[#E5E5E5] p-6 hover:border-[#DC2626] transition-all rounded-2xl hover:shadow-[0_2px_8px_rgba(220,38,38,0.1),0_8px_24px_rgba(220,38,38,0.08)]" style={{boxShadow: '0 1px 3px rgba(26,26,26,0.06), 0 4px 12px rgba(26,26,26,0.04)'}}>
@@ -188,15 +209,15 @@ export default function DashboardPage() {
               </p>
             </div>
             <Button 
-              className="font-space-grotesk w-full bg-white text-[#1A1A1A] border-2 border-[#1A1A1A] py-3 text-lg font-bold hover:bg-[#1A1A1A] hover:text-white transition-all rounded-xl"
-              disabled
+              className="font-space-grotesk w-full bg-[#DC2626] text-white py-3 text-lg font-bold hover:bg-[#B91C1C] transition-all rounded-xl"
+              onClick={() => router.push('/dashboard/credits')}
             >
               <CreditCard className="w-4 h-4 mr-2" />
-              Comprar Créditos (Próximamente)
+              Comprar Créditos
             </Button>
             <div className="font-space-grotesk text-xs text-[#6B6B6B] mt-2 text-center">
-              • Mejora general: 10 créditos<br />
-              • Mejora específica: 15 créditos
+              Desde {formatPrice(PRICE_CONFIG.basic[currency.toLowerCase() as 'mxn' | 'usd'].amount)} • 50 créditos<br />
+              • Mejora general: 10 créditos • Mejora específica: 15 créditos
             </div>
           </div>
         </div>
