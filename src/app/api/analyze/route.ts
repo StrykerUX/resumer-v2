@@ -1,0 +1,255 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { analyzeCV } from '@/lib/openai';
+import { processFile, validateCVContent, cleanCVText } from '@/lib/file-processor';
+
+const ANALYSIS_COST = 5; // Costo en créditos para análisis
+
+export async function POST(request: NextRequest) {
+  let resumeId: string | null = null;
+  
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const formData = await request.formData();
+    resumeId = formData.get('resumeId') as string;
+    const userAnswers = formData.get('userAnswers') as string;
+
+    if (!resumeId) {
+      return NextResponse.json({ error: 'resumeId is required' }, { status: 400 });
+    }
+
+    console.log('🎯 Iniciando análisis para resume:', resumeId);
+
+    // Verificar que el usuario tenga créditos suficientes
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id }
+    });
+
+    if (!user || user.credits < ANALYSIS_COST) {
+      return NextResponse.json({ 
+        error: 'Insufficient credits',
+        required: ANALYSIS_COST,
+        available: user?.credits || 0
+      }, { status: 402 });
+    }
+
+    // Verificar que el resume pertenece al usuario
+    const resume = await prisma.resume.findFirst({
+      where: {
+        id: resumeId,
+        userId: session.user.id
+      }
+    });
+
+    if (!resume) {
+      return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
+    }
+
+    console.log('📥 Descargando archivo desde R2:', resume.fileUrl);
+
+    // Descargar archivo desde R2 en el servidor
+    const fileResponse = await fetch(resume.fileUrl);
+    if (!fileResponse.ok) {
+      throw new Error('No se pudo descargar el archivo desde R2');
+    }
+
+    const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
+    console.log('✅ Archivo descargado, tamaño:', fileBuffer.length, 'bytes');
+
+    // Procesar el archivo en memoria del servidor
+    const processedFile = await processFile(fileBuffer, resume.originalName, resume.mimeType);
+
+    // Validar contenido
+    const validation = validateCVContent(processedFile);
+    if (!validation.valid) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
+    }
+
+    // Limpiar texto
+    const cleanedText = cleanCVText(processedFile.text);
+
+    // Parsear respuestas del usuario si existen
+    let parsedAnswers: Record<string, string> = {};
+    if (userAnswers) {
+      try {
+        parsedAnswers = JSON.parse(userAnswers);
+      } catch (error) {
+        console.error('Error parsing user answers:', error);
+      }
+    }
+
+    // Actualizar estado del resume
+    await prisma.resume.update({
+      where: { id: resumeId },
+      data: { status: 'analyzing' }
+    });
+
+    // Realizar análisis con IA
+    const analysis = await analyzeCV(cleanedText, parsedAnswers);
+
+    // Calcular score ATS básico (placeholder - podría ser más sofisticado)
+    const atsScore = calculateATSScore(cleanedText);
+
+    // Crear análisis en la base de datos
+    const analysisRecord = await prisma.analysis.create({
+      data: {
+        resumeId: resumeId,
+        aiAnalysis: {
+          content: analysis,
+          processedText: cleanedText,
+          metadata: processedFile.metadata,
+          userAnswers: parsedAnswers,
+          timestamp: new Date().toISOString()
+        },
+        suggestions: {
+          keywords: extractKeywords(cleanedText),
+          improvements: extractImprovements(analysis),
+          atsOptimization: generateATSOptimization(cleanedText)
+        },
+        atsScore: atsScore
+      }
+    });
+
+    // Descontar créditos del usuario
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { credits: user.credits - ANALYSIS_COST }
+    });
+
+    // Registrar transacción de créditos
+    await prisma.creditTransaction.create({
+      data: {
+        userId: session.user.id,
+        amount: -ANALYSIS_COST,
+        type: 'usage',
+        description: 'Análisis de CV con IA'
+      }
+    });
+
+    // Actualizar estado del resume
+    await prisma.resume.update({
+      where: { id: resumeId },
+      data: { status: 'completed' }
+    });
+
+    console.log('🎉 Análisis completado exitosamente');
+
+    return NextResponse.json({
+      success: true,
+      analysisId: analysisRecord.id,
+      analysis: analysis,
+      atsScore: atsScore,
+      creditsUsed: ANALYSIS_COST,
+      remainingCredits: user.credits - ANALYSIS_COST,
+      // Datos adicionales para el frontend
+      processedText: cleanedText.substring(0, 500) + '...', // Preview del texto
+      wordCount: processedFile.metadata.wordCount,
+      keywords: extractKeywords(cleanedText),
+      improvements: extractImprovements(analysis),
+      atsOptimization: generateATSOptimization(cleanedText)
+    });
+
+  } catch (error) {
+    console.error('❌ Error in CV analysis:', error);
+    
+    // Intentar revertir estado del resume si hay error
+    if (resumeId) {
+      try {
+        await prisma.resume.update({
+          where: { id: resumeId },
+          data: { status: 'error' }
+        });
+      } catch (revertError) {
+        console.error('Error revirtiendo estado:', revertError);
+      }
+    }
+
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
+// Función auxiliar para calcular score ATS
+function calculateATSScore(text: string): number {
+  let score = 0;
+  const lowercaseText = text.toLowerCase();
+  
+  // Puntos por secciones típicas de CV
+  const sections = ['experiencia', 'educación', 'habilidades', 'contacto', 'skills'];
+  sections.forEach(section => {
+    if (lowercaseText.includes(section)) score += 10;
+  });
+  
+  // Puntos por información de contacto
+  if (lowercaseText.includes('@') || lowercaseText.includes('email')) score += 10;
+  if (lowercaseText.includes('teléfono') || lowercaseText.includes('telefono')) score += 10;
+  
+  // Puntos por formato estructurado
+  if (text.includes('•') || text.includes('-') || text.includes('*')) score += 10;
+  
+  // Puntos por longitud apropiada
+  const wordCount = text.split(/\s+/).length;
+  if (wordCount >= 300 && wordCount <= 800) score += 20;
+  
+  return Math.min(score, 100);
+}
+
+// Función auxiliar para extraer palabras clave
+function extractKeywords(text: string): string[] {
+  const commonKeywords = [
+    'liderazgo', 'gestión', 'análisis', 'desarrollo', 'comunicación',
+    'teamwork', 'project management', 'problem solving', 'innovation',
+    'estrategia', 'planificación', 'colaboración', 'eficiencia'
+  ];
+  
+  const lowercaseText = text.toLowerCase();
+  return commonKeywords.filter(keyword => 
+    lowercaseText.includes(keyword.toLowerCase())
+  );
+}
+
+// Función auxiliar para extraer mejoras del análisis
+function extractImprovements(analysis: string): string[] {
+  const lines = analysis.split('\n');
+  const improvements: string[] = [];
+  
+  lines.forEach(line => {
+    if (line.includes('recomiend') || line.includes('mejor') || line.includes('optimiz')) {
+      improvements.push(line.trim());
+    }
+  });
+  
+  return improvements.slice(0, 5); // Máximo 5 mejoras principales
+}
+
+// Función auxiliar para generar optimización ATS
+function generateATSOptimization(text: string): string[] {
+  const optimizations = [];
+  
+  if (!text.includes('•') && !text.includes('-')) {
+    optimizations.push('Usar viñetas para mejorar la legibilidad');
+  }
+  
+  if (text.split(/\s+/).length > 800) {
+    optimizations.push('Reducir la longitud del CV a 1-2 páginas');
+  }
+  
+  if (!text.toLowerCase().includes('logr') && !text.toLowerCase().includes('result')) {
+    optimizations.push('Incluir más logros cuantificables');
+  }
+  
+  if (!text.includes('@')) {
+    optimizations.push('Asegurar que la información de contacto esté visible');
+  }
+  
+  return optimizations;
+}

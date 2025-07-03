@@ -6,7 +6,7 @@ import { useTranslations } from '@/hooks/use-translations'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { FileText, Upload, CheckCircle, AlertCircle, Loader2, CloudUpload } from 'lucide-react'
+import { FileText, Upload, CheckCircle, AlertCircle, Loader2, CloudUpload, Brain } from 'lucide-react'
 
 interface FileUploadR2Props {
   onUploadComplete?: (fileUrl: string, resumeId: string) => void
@@ -161,6 +161,12 @@ export function FileUploadR2({ onUploadComplete }: FileUploadR2Props) {
     }
   }
 
+  const goToAnalyze = () => {
+    if (uploadedFile?.resumeId) {
+      router.push(`/dashboard/analyze?resumeId=${uploadedFile.resumeId}`)
+    }
+  }
+
   if (uploadStatus === 'success' && uploadedFile) {
     return (
       <Card className="w-full max-w-2xl mx-auto">
@@ -184,21 +190,28 @@ export function FileUploadR2({ onUploadComplete }: FileUploadR2Props) {
             </div>
           </div>
           
-          <div className="flex gap-3">
-            <Button onClick={goToPreview} className="flex-1">
-              Ver Vista Previa
+          <div className="space-y-3">
+            <Button onClick={goToAnalyze} className="w-full bg-green-600 hover:bg-green-700">
+              <Brain className="w-4 h-4 mr-2" />
+              Analizar con IA (5 créditos)
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => {
-                setUploadStatus('idle')
-                setUploadedFile(null)
-                setSelectedFile(null)
-                setUploadProgress(0)
-              }}
-            >
-              Subir Otro
-            </Button>
+            
+            <div className="flex gap-3">
+              <Button onClick={goToPreview} variant="outline" className="flex-1">
+                Ver Vista Previa
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  setUploadStatus('idle')
+                  setUploadedFile(null)
+                  setSelectedFile(null)
+                  setUploadProgress(0)
+                }}
+              >
+                Subir Otro
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

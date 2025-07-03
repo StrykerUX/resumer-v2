@@ -198,14 +198,15 @@ resumer-v2/
 - **🎯 PREVIEW 3**: Subir archivos reales + confirmaciones ✅
 
 **Días 11-14: Créditos + Pagos Multi-Moneda**
-- [ ] Sistema de créditos en UI con balance real
-- [ ] Detección automática de país/moneda (IP + headers)
-- [ ] Integración Stripe con 6 productos (MXN + USD)
-- [ ] UI de pricing con ambas monedas
-- [ ] Comprar créditos en moneda detectada (modo test)
-- [ ] Webhooks Stripe unificados para ambas monedas
-- [ ] Balance actualizado en tiempo real
-- **🎯 PREVIEW 4**: Comprar créditos en MXN/USD + ver balance
+- [x] Sistema de créditos en UI con balance real
+- [x] Detección automática de país/moneda (timezone + locale)
+- [x] Integración Stripe con 6 productos (MXN + USD)
+- [x] UI de pricing con ambas monedas dinámicas
+- [x] Comprar créditos en moneda detectada (modo test)
+- [x] Webhooks Stripe unificados para ambas monedas
+- [x] Balance actualizado en tiempo real automáticamente
+- [x] Configuración completa Stripe CLI para desarrollo
+- **🎯 PREVIEW 4**: Comprar créditos en MXN/USD + ver balance ✅
 
 ---
 
