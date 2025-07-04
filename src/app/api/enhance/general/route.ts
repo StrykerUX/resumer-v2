@@ -1,0 +1,180 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth/next';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { enhanceCV } from '@/lib/openai';
+
+const GENERAL_ENHANCEMENT_COST = 10; // Costo en créditos para mejora general
+
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { resumeId } = await request.json();
+
+    if (!resumeId) {
+      return NextResponse.json({ error: 'resumeId is required' }, { status: 400 });
+    }
+
+    console.log('🔧 Iniciando mejora general para resume:', resumeId);
+
+    // Verificar que el usuario tenga créditos suficientes
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id }
+    });
+
+    if (!user || user.credits < GENERAL_ENHANCEMENT_COST) {
+      return NextResponse.json({ 
+        error: 'Insufficient credits',
+        required: GENERAL_ENHANCEMENT_COST,
+        available: user?.credits || 0
+      }, { status: 402 });
+    }
+
+    // Verificar que el resume pertenece al usuario y tiene análisis
+    const resume = await prisma.resume.findFirst({
+      where: {
+        id: resumeId,
+        userId: session.user.id
+      },
+      include: {
+        analysis: true
+      }
+    });
+
+    if (!resume) {
+      return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
+    }
+
+    if (!resume.analysis) {
+      return NextResponse.json({ 
+        error: 'Resume analysis not found. Please analyze the resume first.' 
+      }, { status: 400 });
+    }
+
+    // Verificar si ya existe una mejora general para este CV
+    const existingEnhancement = await prisma.enhancement.findFirst({
+      where: {
+        resumeId: resumeId,
+        enhancementType: 'general'
+      }
+    });
+
+    if (existingEnhancement && existingEnhancement.status === 'completed') {
+      return NextResponse.json({
+        success: true,
+        enhancement: existingEnhancement,
+        message: 'General enhancement already exists for this resume'
+      });
+    }
+
+    // Extraer información del análisis existente
+    const analysisData = resume.analysis.aiAnalysis as any;
+    const suggestions = resume.analysis.suggestions as any;
+    
+    const originalText = analysisData.processedText;
+    const aiAnalysis = analysisData.content;
+    const improvements = suggestions.improvements || [];
+    const keywords = suggestions.keywords || [];
+    const atsOptimization = suggestions.atsOptimization || [];
+
+    console.log('📊 Datos del análisis extraídos:');
+    console.log('- Texto original:', originalText?.substring(0, 100) + '...');
+    console.log('- Mejoras sugeridas:', improvements.length);
+    console.log('- Palabras clave:', keywords.length);
+    console.log('- Optimizaciones ATS:', atsOptimization.length);
+
+    // Crear registro de enhancement
+    const enhancement = await prisma.enhancement.create({
+      data: {
+        resumeId: resumeId,
+        enhancementType: 'general',
+        creditsUsed: GENERAL_ENHANCEMENT_COST,
+        status: 'processing',
+        enhancedContent: {
+          originalText: originalText,
+          analysisData: {
+            improvements: improvements,
+            keywords: keywords,
+            atsOptimization: atsOptimization,
+            atsScore: resume.analysis.atsScore
+          }
+        }
+      }
+    });
+
+    console.log('✨ Generando mejora con IA...');
+
+    // Generar mejora usando IA
+    const enhancedContent = await enhanceCV(
+      originalText,
+      aiAnalysis,
+      improvements,
+      keywords,
+      atsOptimization,
+      'general'
+    );
+
+    // Actualizar enhancement con el contenido mejorado
+    const updatedEnhancement = await prisma.enhancement.update({
+      where: { id: enhancement.id },
+      data: {
+        status: 'completed',
+        enhancedContent: {
+          originalText: originalText,
+          enhancedText: enhancedContent,
+          analysisData: {
+            improvements: improvements,
+            keywords: keywords,
+            atsOptimization: atsOptimization,
+            atsScore: resume.analysis.atsScore
+          },
+          metadata: {
+            enhancementType: 'general',
+            processedAt: new Date().toISOString(),
+            creditsUsed: GENERAL_ENHANCEMENT_COST
+          }
+        }
+      }
+    });
+
+    // Descontar créditos del usuario
+    await prisma.user.update({
+      where: { id: session.user.id },
+      data: { credits: user.credits - GENERAL_ENHANCEMENT_COST }
+    });
+
+    // Registrar transacción de créditos
+    await prisma.creditTransaction.create({
+      data: {
+        userId: session.user.id,
+        amount: -GENERAL_ENHANCEMENT_COST,
+        type: 'usage',
+        description: 'Mejora general de CV con IA'
+      }
+    });
+
+    console.log('🎉 Mejora general completada exitosamente');
+
+    return NextResponse.json({
+      success: true,
+      enhancementId: updatedEnhancement.id,
+      enhancedContent: enhancedContent,
+      creditsUsed: GENERAL_ENHANCEMENT_COST,
+      remainingCredits: user.credits - GENERAL_ENHANCEMENT_COST,
+      enhancement: updatedEnhancement
+    });
+
+  } catch (error) {
+    console.error('❌ Error in general enhancement:', error);
+    
+    return NextResponse.json(
+      { error: error instanceof Error ? error.message : 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}

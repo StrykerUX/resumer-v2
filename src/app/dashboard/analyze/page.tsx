@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import Questionnaire from '@/components/questionnaire';
 import AnalysisResults from '@/components/analysis-results';
+import EnhancementsList from '@/components/enhancements-list';
 
 interface Resume {
   id: string;
@@ -254,20 +255,34 @@ function AnalyzePageContent() {
       )}
 
       {step === 'results' && analysisResult && (
-        <div>
-          <div className="mb-6">
-            <h2 className="text-xl font-semibold mb-2">Resultados del Análisis</h2>
-            <p className="text-gray-600">
-              Aquí tienes el análisis completo de tu CV con recomendaciones personalizadas.
-            </p>
+        <div className="space-y-8">
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">Resultados del Análisis</h2>
+              <p className="text-gray-600">
+                Aquí tienes el análisis completo de tu CV con recomendaciones personalizadas.
+              </p>
+            </div>
+            <AnalysisResults
+              analysis={analysisResult.analysis}
+              suggestions={analysisResult.suggestions}
+              atsScore={analysisResult.atsScore}
+              onStartImprovement={handleStartImprovement}
+              isLoading={isLoading}
+            />
           </div>
-          <AnalysisResults
-            analysis={analysisResult.analysis}
-            suggestions={analysisResult.suggestions}
-            atsScore={analysisResult.atsScore}
-            onStartImprovement={handleStartImprovement}
-            isLoading={isLoading}
-          />
+
+          <Separator />
+
+          <div>
+            <div className="mb-6">
+              <h2 className="text-xl font-semibold mb-2">Mejoras Existentes</h2>
+              <p className="text-gray-600">
+                Historial de mejoras generadas para este CV.
+              </p>
+            </div>
+            <EnhancementsList resumeId={resumeId || undefined} />
+          </div>
         </div>
       )}
     </div>

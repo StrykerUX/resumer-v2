@@ -159,3 +159,137 @@ Adapta este CV para que sea más competitivo para esta oferta específica, mante
   }
 }
 
+// Función unificada para mejoras de CV (nueva)
+export async function enhanceCV(
+  originalText: string,
+  aiAnalysis: string,
+  improvements: string[],
+  keywords: string[],
+  atsOptimization: string[],
+  enhancementType: 'general' | 'targeted',
+  jobInfo?: {
+    title?: string;
+    company?: string;
+    description?: string;
+    requirements?: string[];
+  }
+) {
+  try {
+    const openai = getOpenAIClient();
+    
+    let systemPrompt = '';
+    let userPrompt = '';
+
+    if (enhancementType === 'general') {
+      systemPrompt = `Eres un experto en optimización de CVs. Tu trabajo es mejorar un CV basándote en un análisis previo de IA y recomendaciones específicas.
+
+REGLAS IMPORTANTES:
+1. NUNCA inventes experiencias, habilidades o educación
+2. SOLO mejora la presentación, formato y descripción de información existente
+3. Aplica las mejoras sugeridas y optimizaciones ATS
+4. Integra palabras clave relevantes de manera natural
+5. Mejora la redacción y estructura
+6. Mantén toda la información veraz y verificable
+7. Responde SOLO con el CV mejorado, sin explicaciones adicionales
+8. Usa formato profesional y claro
+9. Responde en español
+
+ESTRUCTURA RECOMENDADA:
+- Información de contacto
+- Resumen profesional (2-3 líneas)
+- Experiencia laboral (con logros cuantificables)
+- Educación
+- Habilidades técnicas y blandas
+- Certificaciones o logros adicionales (si aplica)`;
+
+      userPrompt = `CV ORIGINAL:
+${originalText}
+
+ANÁLISIS DE IA PREVIO:
+${aiAnalysis}
+
+MEJORAS SUGERIDAS:
+${improvements.join('\n')}
+
+PALABRAS CLAVE A INTEGRAR:
+${keywords.join(', ')}
+
+OPTIMIZACIONES ATS:
+${atsOptimization.join('\n')}
+
+Mejora este CV aplicando todas las recomendaciones, manteniendo la información veraz y optimizándolo para sistemas ATS.`;
+
+    } else {
+      systemPrompt = `Eres un experto en optimización de CVs para trabajos específicos. Tu trabajo es adaptar un CV para una posición específica basándote en análisis previo y información del trabajo objetivo.
+
+REGLAS IMPORTANTES:
+1. NUNCA inventes experiencias, habilidades o educación
+2. SOLO reorganiza, enfatiza y mejora información existente
+3. Optimiza específicamente para el trabajo objetivo
+4. Integra palabras clave del trabajo de manera natural
+5. Prioriza experiencia y habilidades relevantes para la posición
+6. Mantén toda la información veraz y verificable
+7. Responde SOLO con el CV optimizado, sin explicaciones adicionales
+8. Usa formato profesional y claro
+9. Responde en español
+
+ESTRUCTURA RECOMENDADA:
+- Información de contacto
+- Resumen profesional (enfocado en la posición objetivo)
+- Experiencia laboral (priorizando experiencia relevante)
+- Habilidades técnicas (enfocadas en los requisitos del trabajo)
+- Educación
+- Certificaciones relevantes (si aplica)`;
+
+      const jobDescription = jobInfo?.description || '';
+      const jobTitle = jobInfo?.title || '';
+      const companyName = jobInfo?.company || '';
+      const requirements = jobInfo?.requirements || [];
+
+      userPrompt = `CV ORIGINAL:
+${originalText}
+
+TRABAJO OBJETIVO:
+Puesto: ${jobTitle}
+Empresa: ${companyName}
+Descripción: ${jobDescription}
+Requisitos clave: ${requirements.join(', ')}
+
+ANÁLISIS DE IA PREVIO:
+${aiAnalysis}
+
+MEJORAS SUGERIDAS:
+${improvements.join('\n')}
+
+PALABRAS CLAVE A INTEGRAR:
+${keywords.join(', ')}
+
+OPTIMIZACIONES ATS:
+${atsOptimization.join('\n')}
+
+Optimiza este CV específicamente para el trabajo objetivo, aplicando todas las recomendaciones y enfocándote en la experiencia y habilidades más relevantes para la posición.`;
+    }
+
+    const response = await openai.chat.completions.create({
+      model: CV_ANALYSIS_CONFIG.model,
+      temperature: 0.4, // Menor temperatura para mayor consistencia
+      max_tokens: 3500, // Más tokens para CVs completos
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+      ],
+    });
+
+    const enhancedContent = response.choices[0]?.message?.content || '';
+    
+    if (!enhancedContent.trim()) {
+      throw new Error('Empty response from OpenAI');
+    }
+
+    return enhancedContent;
+  } catch (error) {
+    console.error('Error enhancing CV:', error);
+    throw new Error(`Failed to enhance CV: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
