@@ -45,17 +45,17 @@ export const PRICE_CONFIG = {
   basic: {
     mxn: { amount: 69, display: '$69 MXN' },
     usd: { amount: 3.70, display: '$3.70 USD' },
-    credits: 50,
+    credits: 100,
   },
   pro: {
     mxn: { amount: 129, display: '$129 MXN' },
     usd: { amount: 6.90, display: '$6.90 USD' },
-    credits: 120,
+    credits: 220,
   },
   premium: {
     mxn: { amount: 199, display: '$199 MXN' },
     usd: { amount: 10.70, display: '$10.70 USD' },
-    credits: 200,
+    credits: 320,
   },
 }
 

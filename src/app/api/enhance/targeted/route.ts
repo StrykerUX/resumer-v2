@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createAIPipeline } from '@/lib/ai-pipeline';
 
-const TARGETED_ENHANCEMENT_COST = 35; // Costo en créditos para mejora especializada
+const TARGETED_ENHANCEMENT_COST = 25; // Costo en créditos para mejora especializada
 
 export async function POST(request: NextRequest) {
   try {

@@ -51,7 +51,7 @@ type PipelineType = 'simple' | 'advanced' | 'specialized';
 const PIPELINE_OPTIONS = {
   simple: {
     name: 'MEJORA SIMPLE',
-    cost: 20,
+    cost: 15,
     color: 'bg-[#D97706]',
     borderColor: 'border-[#D97706]',
     textColor: 'text-[#D97706]',
@@ -69,7 +69,7 @@ const PIPELINE_OPTIONS = {
   },
   advanced: {
     name: 'MEJORA AVANZADA',
-    cost: 30,
+    cost: 20,
     color: 'bg-[#7C3AED]',
     borderColor: 'border-[#7C3AED]',
     textColor: 'text-[#7C3AED]',
@@ -88,7 +88,7 @@ const PIPELINE_OPTIONS = {
   },
   specialized: {
     name: 'MEJORA ESPECIALIZADA',
-    cost: 35,
+    cost: 25,
     color: 'bg-[#DC2626]',
     borderColor: 'border-[#DC2626]',
     textColor: 'text-[#DC2626]',

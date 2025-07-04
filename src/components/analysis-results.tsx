@@ -229,7 +229,7 @@ export default function AnalysisResults({
                 2 IAs trabajando: Content Enhancer + Humanizer. Score garantizado: 75-85/100.
               </p>
               <div className="flex items-center justify-between">
-                <Badge className="bg-orange-100 text-orange-700">20 créditos</Badge>
+                <Badge className="bg-orange-100 text-orange-700">15 créditos</Badge>
                 <Button 
                   onClick={() => onStartImprovement('simple')}
                   disabled={isLoading}
@@ -246,7 +246,7 @@ export default function AnalysisResults({
                 5 IAs especializadas con validación de recruiter. Score garantizado: 90-95/100.
               </p>
               <div className="flex items-center justify-between">
-                <Badge className="bg-purple-100 text-purple-700">30 créditos</Badge>
+                <Badge className="bg-purple-100 text-purple-700">20 créditos</Badge>
                 <Button 
                   onClick={() => onStartImprovement('advanced')}
                   disabled={isLoading}
@@ -263,7 +263,7 @@ export default function AnalysisResults({
                 6 IAs + alineación específica para el puesto objetivo. Score garantizado: 93-98/100.
               </p>
               <div className="flex items-center justify-between">
-                <Badge className="bg-red-100 text-red-700">35 créditos</Badge>
+                <Badge className="bg-red-100 text-red-700">25 créditos</Badge>
                 <Button 
                   onClick={() => onStartImprovement('specialized')}
                   disabled={isLoading}

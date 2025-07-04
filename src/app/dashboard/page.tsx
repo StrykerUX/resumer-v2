@@ -216,8 +216,8 @@ export default function DashboardPage() {
               Comprar Créditos
             </Button>
             <div className="font-space-grotesk text-xs text-[#6B6B6B] mt-2 text-center">
-              Desde {formatPrice(PRICE_CONFIG.basic[currency.toLowerCase() as 'mxn' | 'usd'].amount)} • 150 créditos<br />
-              • Análisis: 10 • Simple: 20 • Avanzada: 30 • Especializada: 35 créditos
+              Desde {formatPrice(PRICE_CONFIG.basic[currency.toLowerCase() as 'mxn' | 'usd'].amount)} • 100 créditos<br />
+              • Análisis: 10 • Simple: 15 • Avanzada: 20 • Especializada: 25 créditos
             </div>
           </div>
         </div>
@@ -231,7 +231,7 @@ export default function DashboardPage() {
                 <Cpu className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-pixelify-sans text-lg font-bold text-[#1A1A1A] mb-2">MEJORA SIMPLE</h3>
-              <div className="font-pixelify-sans text-2xl font-bold text-[#D97706] mb-1">20 créditos</div>
+              <div className="font-pixelify-sans text-2xl font-bold text-[#D97706] mb-1">15 créditos</div>
               <p className="font-space-grotesk text-sm text-[#6B6B6B]">
                 2 IAs trabajando: Content Enhancer + Humanizer
               </p>
@@ -265,7 +265,7 @@ export default function DashboardPage() {
                 <Brain className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-pixelify-sans text-lg font-bold text-[#1A1A1A] mb-2">MEJORA AVANZADA</h3>
-              <div className="font-pixelify-sans text-2xl font-bold text-[#7C3AED] mb-1">30 créditos</div>
+              <div className="font-pixelify-sans text-2xl font-bold text-[#7C3AED] mb-1">20 créditos</div>
               <p className="font-space-grotesk text-sm text-[#6B6B6B]">
                 5 IAs especializadas con validación de recruiter
               </p>
@@ -299,7 +299,7 @@ export default function DashboardPage() {
                 <BarChart3 className="w-6 h-6 text-white" />
               </div>
               <h3 className="font-pixelify-sans text-lg font-bold text-[#1A1A1A] mb-2">MEJORA ESPECIALIZADA</h3>
-              <div className="font-pixelify-sans text-2xl font-bold text-[#DC2626] mb-1">35 créditos</div>
+              <div className="font-pixelify-sans text-2xl font-bold text-[#DC2626] mb-1">25 créditos</div>
               <p className="font-space-grotesk text-sm text-[#6B6B6B]">
                 6 IAs + alineación específica para el puesto objetivo
               </p>

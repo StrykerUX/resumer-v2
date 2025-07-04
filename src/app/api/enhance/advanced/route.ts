@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createAIPipeline } from '@/lib/ai-pipeline';
 
-const ADVANCED_ENHANCEMENT_COST = 30; // Costo en créditos para mejora avanzada
+const ADVANCED_ENHANCEMENT_COST = 20; // Costo en créditos para mejora avanzada
 
 export async function POST(request: NextRequest) {
   try {

@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createAIPipeline } from '@/lib/ai-pipeline';
 
-const GENERAL_ENHANCEMENT_COST = 20; // Costo en créditos para mejora simple
+const GENERAL_ENHANCEMENT_COST = 15; // Costo en créditos para mejora simple
 
 export async function POST(request: NextRequest) {
   try {
