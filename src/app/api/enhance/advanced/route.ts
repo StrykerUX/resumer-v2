@@ -76,11 +76,36 @@ export async function POST(request: NextRequest) {
     const analysisData = resume.analysis.aiAnalysis as any;
     const suggestions = resume.analysis.suggestions as any;
     
-    const originalText = analysisData.processedText;
-    const aiAnalysis = analysisData.content;
     const improvements = suggestions.improvements || [];
     const keywords = suggestions.keywords || [];
     const atsOptimization = suggestions.atsOptimization || [];
+
+    console.log('🔄 Re-procesando archivo original para mejor calidad...');
+
+    // Re-procesar el archivo original para obtener texto limpio
+    const { generatePresignedDownloadUrl, extractObjectKey } = await import('@/lib/r2-client');
+    const objectKey = extractObjectKey(resume.fileUrl);
+    const presignedUrl = await generatePresignedDownloadUrl(objectKey, 300);
+    
+    const fileResponse = await fetch(presignedUrl);
+    if (!fileResponse.ok) {
+      throw new Error(`No se pudo descargar el archivo desde R2: ${fileResponse.status}`);
+    }
+
+    const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
+    
+    // Procesar con el sistema híbrido mejorado
+    const { CVProcessor, validateCVContent, cleanCVText } = await import('@/lib/file-processor');
+    const cvProcessor = new CVProcessor();
+    const processedFile = await cvProcessor.processCV(fileBuffer, resume.originalName, resume.mimeType);
+    
+    const validation = validateCVContent(processedFile);
+    if (!validation.valid) {
+      throw new Error(`Error procesando archivo: ${validation.error}`);
+    }
+
+    const originalText = cleanCVText(processedFile.text);
+    console.log('✅ Archivo re-procesado exitosamente. Caracteres:', originalText.length);
 
     console.log('📊 Datos del análisis extraídos para mejora avanzada:');
     console.log('- Texto original:', originalText?.substring(0, 100) + '...');

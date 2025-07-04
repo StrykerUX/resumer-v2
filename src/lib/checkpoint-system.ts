@@ -292,9 +292,9 @@ export class CheckpointSystem {
 
   private static getRefundAmount(pipelineType: string): number {
     const costs = {
-      simple: 20,
-      advanced: 30,
-      specialized: 35
+      simple: 15,
+      advanced: 20,
+      specialized: 25
     };
     
     return costs[pipelineType as keyof typeof costs] || 0;
