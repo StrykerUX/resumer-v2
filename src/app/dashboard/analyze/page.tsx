@@ -139,9 +139,9 @@ function AnalyzePageContent() {
     }
   };
 
-  const handleStartImprovement = (type: 'general' | 'targeted') => {
-    // Navegar a la página de mejoras
-    router.push(`/dashboard/improve?resumeId=${resumeId}&type=${type}`);
+  const handleStartImprovement = (type: 'simple' | 'advanced' | 'specialized') => {
+    // Navegar a la página de mejoras sin tipo preseleccionado (que muestre las 3 opciones)
+    router.push(`/dashboard/improve?resumeId=${resumeId}`);
   };
 
   if (error) {
@@ -269,6 +269,7 @@ function AnalyzePageContent() {
               atsScore={analysisResult.atsScore}
               onStartImprovement={handleStartImprovement}
               isLoading={isLoading}
+              resumeId={resumeId || undefined}
             />
           </div>
 

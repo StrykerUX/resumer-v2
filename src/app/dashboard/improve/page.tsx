@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,47 +10,137 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CheckCircle, Download, AlertCircle, ArrowLeft } from 'lucide-react';
+import { AIProgress } from '@/components/ai-progress';
+import { Space_Grotesk, Pixelify_Sans } from 'next/font/google';
+import { 
+  CheckCircle, 
+  Download, 
+  AlertCircle, 
+  ArrowLeft, 
+  Cpu, 
+  Brain, 
+  Target,
+  Clock,
+  Star,
+  Zap
+} from 'lucide-react';
+
+const spaceGrotesk = Space_Grotesk({ 
+  subsets: ['latin'],
+  variable: '--font-space-grotesk'
+});
+
+const pixelifySans = Pixelify_Sans({ 
+  subsets: ['latin'],
+  variable: '--font-pixelify-sans'
+});
 
 interface Enhancement {
   id: string;
-  enhancementType: 'general' | 'targeted';
+  enhancementType: 'simple' | 'advanced' | 'specialized';
   status: 'processing' | 'completed' | 'error';
   enhancedContent: any;
   creditsUsed: number;
   createdAt: string;
+  pipelineInfo?: any;
+  scoreImprovement?: any;
 }
+
+type PipelineType = 'simple' | 'advanced' | 'specialized';
+
+const PIPELINE_OPTIONS = {
+  simple: {
+    name: 'MEJORA SIMPLE',
+    cost: 20,
+    color: 'bg-[#D97706]',
+    borderColor: 'border-[#D97706]',
+    textColor: 'text-[#D97706]',
+    hoverColor: 'hover:bg-[#B45309]',
+    icon: Cpu,
+    description: '2 IAs trabajando en tu CV',
+    features: [
+      'Content Enhancer profesional',
+      'Humanizer & Format Expert',
+      'Score garantizado: 75-85/100',
+      'Tiempo: ~5-8 minutos',
+      'Mejora de contenido y formato'
+    ],
+    guarantee: 'Score mínimo 75/100 o devolución automática'
+  },
+  advanced: {
+    name: 'MEJORA AVANZADA',
+    cost: 30,
+    color: 'bg-[#7C3AED]',
+    borderColor: 'border-[#7C3AED]',
+    textColor: 'text-[#7C3AED]',
+    hoverColor: 'hover:bg-[#6D28D9]',
+    icon: Brain,
+    description: '5 IAs especializadas con validación',
+    features: [
+      'Content Enhancer + Industry Recruiter',
+      'Expert Senior Recruiter (validación)',
+      'Head Hunter Enhancer (nivel ejecutivo)',
+      'Humanizer & Format Expert',
+      'Score garantizado: 90-95/100',
+      'Tiempo: ~8-12 minutos'
+    ],
+    guarantee: 'Score mínimo 85/100 o reintento automático'
+  },
+  specialized: {
+    name: 'MEJORA ESPECIALIZADA',
+    cost: 35,
+    color: 'bg-[#DC2626]',
+    borderColor: 'border-[#DC2626]',
+    textColor: 'text-[#DC2626]',
+    hoverColor: 'hover:bg-[#B91C1C]',
+    icon: Target,
+    description: '6 IAs + alineación específica',
+    features: [
+      'Position Enhancer (alineación al puesto)',
+      'Industry Recruiter + Expert Recruiter',
+      'Head Hunter Enhancer premium',
+      'Humanizer & Format Expert',
+      'Score garantizado: 93-98/100',
+      'Tiempo: ~10-15 minutos'
+    ],
+    guarantee: 'Score mínimo 90/100 o reintento automático'
+  }
+};
 
 function ImprovePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const resumeId = searchParams.get('resumeId');
-  const type = searchParams.get('type') as 'general' | 'targeted';
+  const preSelectedType = searchParams.get('type') as PipelineType;
 
-  const [step, setStep] = useState<'form' | 'processing' | 'completed'>('form');
+  const [step, setStep] = useState<'selection' | 'form' | 'processing' | 'completed'>('selection');
+  const [selectedType, setSelectedType] = useState<PipelineType | null>(preSelectedType);
   const [enhancement, setEnhancement] = useState<Enhancement | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [userCredits, setUserCredits] = useState<number>(0);
+  const [progress, setProgress] = useState<any>(null);
+  const [completedSteps, setCompletedSteps] = useState<string[]>([]);
 
-  // Form data for targeted improvement
+  // Form data for specialized improvement
   const [jobTitle, setJobTitle] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [jobDescription, setJobDescription] = useState('');
   const [keyRequirements, setKeyRequirements] = useState<string[]>([]);
   const [requirementInput, setRequirementInput] = useState('');
 
-  const cost = type === 'general' ? 10 : 15;
-
   useEffect(() => {
-    if (!resumeId || !type) {
+    if (!resumeId) {
       router.push('/dashboard');
       return;
     }
     
     fetchUserCredits();
-    checkExistingEnhancement();
-  }, [resumeId, type]);
+    
+    if (preSelectedType) {
+      setStep('form');
+    }
+  }, [resumeId, preSelectedType]);
 
   const fetchUserCredits = async () => {
     try {
@@ -61,15 +151,6 @@ function ImprovePageContent() {
       }
     } catch (error) {
       console.error('Error fetching credits:', error);
-    }
-  };
-
-  const checkExistingEnhancement = async () => {
-    try {
-      // Aquí podrías verificar si ya existe una mejora para este tipo y CV
-      // Por ahora asumimos que no existe
-    } catch (error) {
-      console.error('Error checking existing enhancement:', error);
     }
   };
 
@@ -84,24 +165,46 @@ function ImprovePageContent() {
     setKeyRequirements(keyRequirements.filter(req => req !== requirement));
   };
 
+  const handleTypeSelection = (type: PipelineType) => {
+    setSelectedType(type);
+    setStep('form');
+  };
+
   const handleStartImprovement = async () => {
-    if (userCredits < cost) {
-      setError(`Créditos insuficientes. Necesitas ${cost} créditos, tienes ${userCredits}.`);
+    if (!selectedType) return;
+    
+    const option = PIPELINE_OPTIONS[selectedType];
+    
+    if (userCredits < option.cost) {
+      setError(`Créditos insuficientes. Necesitas ${option.cost} créditos, tienes ${userCredits}.`);
       return;
     }
 
     setIsLoading(true);
     setStep('processing');
     setError(null);
+    setProgress(null);
+    setCompletedSteps([]);
 
     try {
-      const endpoint = type === 'general' ? '/api/enhance/general' : '/api/enhance/targeted';
+      let endpoint = '';
+      switch (selectedType) {
+        case 'simple':
+          endpoint = '/api/enhance/general';
+          break;
+        case 'advanced':
+          endpoint = '/api/enhance/advanced';
+          break;
+        case 'specialized':
+          endpoint = '/api/enhance/targeted';
+          break;
+      }
       
       const requestBody: any = {
         resumeId: resumeId
       };
 
-      if (type === 'targeted') {
+      if (selectedType === 'specialized') {
         if (!jobDescription.trim() && !jobTitle.trim()) {
           throw new Error('Debe proporcionar al menos una descripción del trabajo o título del puesto.');
         }
@@ -112,7 +215,7 @@ function ImprovePageContent() {
         requestBody.keyRequirements = keyRequirements;
       }
 
-      console.log(`🔧 Iniciando mejora ${type}:`, requestBody);
+      console.log(`🔧 Iniciando mejora ${selectedType}:`, requestBody);
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -135,14 +238,21 @@ function ImprovePageContent() {
 
       setEnhancement({
         id: data.enhancementId,
-        enhancementType: type,
+        enhancementType: selectedType,
         status: 'completed',
         enhancedContent: data.enhancedContent,
         creditsUsed: data.creditsUsed,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
+        pipelineInfo: data.pipelineInfo,
+        scoreImprovement: data.scoreImprovement
       });
 
       setUserCredits(data.remainingCredits);
+      
+      // Simular progreso completado
+      const aisUsed = data.pipelineInfo?.aisUsed || [];
+      setCompletedSteps(aisUsed.map((ai: string, index: number) => `step-${index}`));
+      
       setStep('completed');
 
     } catch (error: any) {
@@ -162,286 +272,342 @@ function ImprovePageContent() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `cv_mejorado_${type}_${new Date().toISOString().split('T')[0]}.txt`;
+    a.download = `cv_mejorado_${selectedType}_${new Date().toISOString().split('T')[0]}.txt`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
 
-  if (!resumeId || !type) {
+  if (!resumeId) {
     return null;
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver
-        </Button>
-        <h1 className="text-3xl font-bold mb-2">
-          {type === 'general' ? 'Mejora General' : 'Mejora Específica'}
-        </h1>
-        <p className="text-gray-600">
-          {type === 'general' 
-            ? 'Aplicamos las recomendaciones del análisis para crear una versión mejorada de tu CV.'
-            : 'Optimizamos tu CV para una oferta de trabajo específica que tengas en mente.'
-          }
-        </p>
-      </div>
-
-      {/* Credits info */}
-      <Card className="mb-6">
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">Costo de esta mejora</p>
-              <p className="text-sm text-gray-600">Créditos necesarios para procesar</p>
-            </div>
-            <div className="text-right">
-              <Badge variant={userCredits >= cost ? "default" : "destructive"}>
-                {cost} créditos
-              </Badge>
-              <p className="text-sm text-gray-600 mt-1">
-                Tienes {userCredits} créditos disponibles
-              </p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {error && (
-        <Alert className="mb-6" variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
-
-      {/* Main content based on step */}
-      {step === 'form' && (
-        <div className="space-y-6">
-          {type === 'general' ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>Mejora General</CardTitle>
-                <CardDescription>
-                  Aplicaremos automáticamente todas las recomendaciones del análisis de tu CV para crear una versión optimizada.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-blue-900 mb-2">¿Qué incluye la mejora general?</h4>
-                    <ul className="text-sm text-blue-700 space-y-1">
-                      <li>• Optimización de formato y estructura</li>
-                      <li>• Mejora de la redacción y presentación</li>
-                      <li>• Integración de palabras clave relevantes</li>
-                      <li>• Optimización para sistemas ATS</li>
-                      <li>• Aplicación de todas las recomendaciones del análisis</li>
-                    </ul>
-                  </div>
-                  <Button 
-                    onClick={handleStartImprovement} 
-                    disabled={userCredits < cost || isLoading}
-                    className="w-full"
-                    size="lg"
-                  >
-                    {userCredits < cost ? `Necesitas ${cost - userCredits} créditos más` : `Iniciar mejora (${cost} créditos)`}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle>Mejora Específica</CardTitle>
-                <CardDescription>
-                  Proporciona información sobre la oferta de trabajo para optimizar tu CV específicamente para esa posición.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="jobTitle">Título del puesto</Label>
-                    <Input
-                      id="jobTitle"
-                      value={jobTitle}
-                      onChange={(e) => setJobTitle(e.target.value)}
-                      placeholder="ej. Desarrollador Full Stack Senior"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="companyName">Empresa (opcional)</Label>
-                    <Input
-                      id="companyName"
-                      value={companyName}
-                      onChange={(e) => setCompanyName(e.target.value)}
-                      placeholder="ej. Google, Microsoft, etc."
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="jobDescription">Descripción del trabajo *</Label>
-                    <Textarea
-                      id="jobDescription"
-                      value={jobDescription}
-                      onChange={(e) => setJobDescription(e.target.value)}
-                      placeholder="Pega aquí la descripción completa del trabajo o los requisitos principales..."
-                      className="min-h-[120px]"
-                    />
-                    <p className="text-sm text-gray-600 mt-1">
-                      Incluye responsabilidades, requisitos técnicos, y cualquier información relevante del puesto.
-                    </p>
-                  </div>
-
-                  <div>
-                    <Label>Requisitos clave (opcional)</Label>
-                    <div className="flex space-x-2 mb-2">
-                      <Input
-                        value={requirementInput}
-                        onChange={(e) => setRequirementInput(e.target.value)}
-                        placeholder="ej. React, Python, 3+ años experiencia"
-                        onKeyPress={(e) => e.key === 'Enter' && addRequirement()}
-                      />
-                      <Button type="button" onClick={addRequirement} variant="outline">
-                        Agregar
-                      </Button>
-                    </div>
-                    {keyRequirements.length > 0 && (
-                      <div className="flex flex-wrap gap-2">
-                        {keyRequirements.map((req, index) => (
-                          <Badge key={index} variant="secondary" className="cursor-pointer" onClick={() => removeRequirement(req)}>
-                            {req} ×
-                          </Badge>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <Separator />
-
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <h4 className="font-medium text-yellow-900 mb-2">¿Qué incluye la mejora específica?</h4>
-                  <ul className="text-sm text-yellow-700 space-y-1">
-                    <li>• Todo lo de la mejora general</li>
-                    <li>• Optimización específica para el puesto objetivo</li>
-                    <li>• Priorización de experiencia relevante</li>
-                    <li>• Integración de palabras clave del trabajo</li>
-                    <li>• Adaptación del resumen profesional</li>
-                  </ul>
-                </div>
-
-                <Button 
-                  onClick={handleStartImprovement} 
-                  disabled={userCredits < cost || isLoading || (!jobDescription.trim() && !jobTitle.trim())}
-                  className="w-full"
-                  size="lg"
-                >
-                  {userCredits < cost 
-                    ? `Necesitas ${cost - userCredits} créditos más` 
-                    : (!jobDescription.trim() && !jobTitle.trim())
-                      ? 'Completa al menos el título o descripción'
-                      : `Iniciar mejora específica (${cost} créditos)`
-                  }
-                </Button>
-              </CardContent>
-            </Card>
-          )}
+    <div className={`${pixelifySans.variable} ${spaceGrotesk.variable} min-h-screen bg-[#F7F7F5] text-[#1A1A1A]`}>
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => router.back()}
+            className="mb-4 font-space-grotesk"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Volver
+          </Button>
+          <h1 className="font-pixelify-sans text-3xl font-bold mb-2">
+            MEJORA TU CV CON IA
+          </h1>
+          <p className="font-space-grotesk text-[#6B6B6B]">
+            Elige el nivel de mejora que necesitas para tu currículum
+          </p>
         </div>
-      )}
 
-      {step === 'processing' && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <div className="space-y-4">
-              <div className="animate-spin mx-auto h-8 w-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-              <h3 className="text-xl font-semibold">
-                {type === 'general' ? 'Mejorando tu CV...' : 'Optimizando para el puesto...'}
-              </h3>
-              <p className="text-gray-600">
-                Nuestra IA está {type === 'general' ? 'aplicando las mejoras' : 'adaptando tu CV para la oferta específica'}.
-                Esto puede tomar hasta 45 segundos.
-              </p>
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <p className="text-sm text-blue-700">
-                  ✨ <strong>Procesando...</strong> {type === 'general' 
-                    ? 'Optimizando formato, redacción y palabras clave según el análisis.'
-                    : 'Priorizando experiencia relevante y adaptando para el puesto objetivo.'
-                  }
+        {/* Credits info */}
+        <Card className="mb-6 border-2 border-[#E5E5E5]">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-space-grotesk font-medium">Créditos disponibles</p>
+                <p className="font-space-grotesk text-sm text-[#6B6B6B]">Balance actual en tu cuenta</p>
+              </div>
+              <div className="text-right">
+                <div className="font-pixelify-sans text-2xl font-bold text-[#D97706]">
+                  {userCredits}
+                </div>
+                <p className="font-space-grotesk text-sm text-[#6B6B6B]">
+                  créditos disponibles
                 </p>
               </div>
             </div>
           </CardContent>
         </Card>
-      )}
 
-      {step === 'completed' && enhancement && (
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <CheckCircle className="h-6 w-6 text-green-600 mr-2" />
-                ¡Mejora completada!
-              </CardTitle>
-              <CardDescription>
-                Tu CV ha sido mejorado exitosamente. Aquí tienes el resultado.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <p className="font-medium">Créditos utilizados: {enhancement.creditsUsed}</p>
-                  <p className="text-sm text-gray-600">Créditos restantes: {userCredits}</p>
-                </div>
-                <Button onClick={handleDownload} className="flex items-center">
-                  <Download className="h-4 w-4 mr-2" />
-                  Descargar CV mejorado
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+        {error && (
+          <Alert className="mb-6 border-2 border-red-200" variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription className="font-space-grotesk">{error}</AlertDescription>
+          </Alert>
+        )}
 
-          <Card>
-            <CardHeader>
-              <CardTitle>CV Mejorado</CardTitle>
-              <CardDescription>
-                Vista previa de tu CV optimizado. Puedes descargar el archivo completo.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="bg-gray-50 p-4 rounded-lg max-h-96 overflow-y-auto">
-                <pre className="whitespace-pre-wrap text-sm font-mono">
-                  {enhancement.enhancedContent}
-                </pre>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Main content based on step */}
+        {step === 'selection' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {Object.entries(PIPELINE_OPTIONS).map(([type, option]) => {
+              const IconComponent = option.icon;
+              return (
+                <Card 
+                  key={type}
+                  className={`border-2 ${option.borderColor} hover:shadow-lg transition-all cursor-pointer`}
+                  onClick={() => handleTypeSelection(type as PipelineType)}
+                >
+                  <CardHeader className="text-center pb-4">
+                    <div className={`w-16 h-16 ${option.color} rounded-xl flex items-center justify-center mx-auto mb-4`}>
+                      <IconComponent className="w-8 h-8 text-white" />
+                    </div>
+                    <CardTitle className={`font-pixelify-sans text-xl ${option.textColor} mb-2`}>
+                      {option.name}
+                    </CardTitle>
+                    <div className={`font-pixelify-sans text-3xl font-bold ${option.textColor} mb-2`}>
+                      {option.cost} créditos
+                    </div>
+                    <CardDescription className="font-space-grotesk">
+                      {option.description}
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3 mb-6">
+                      {option.features.map((feature, index) => (
+                        <div key={index} className="flex items-center text-sm font-space-grotesk text-[#6B6B6B]">
+                          <div className="w-2 h-2 bg-[#059669] rounded-full mr-3"></div>
+                          <span>{feature}</span>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="bg-[#F7F7F5] rounded-xl p-3 mb-4">
+                      <p className="text-xs font-space-grotesk text-[#6B6B6B]">
+                        <strong>Garantía:</strong> {option.guarantee}
+                      </p>
+                    </div>
 
-          <div className="flex space-x-4">
-            <Button 
-              onClick={() => router.push('/dashboard')}
-              variant="outline"
-              className="flex-1"
-            >
-              Volver al Dashboard
-            </Button>
-            <Button 
-              onClick={() => router.push(`/dashboard/analyze?resumeId=${resumeId}`)}
-              className="flex-1"
-            >
-              Hacer otra mejora
-            </Button>
+                    <Button 
+                      className={`font-space-grotesk w-full ${option.color} text-white py-3 font-bold ${option.hoverColor} transition-all rounded-xl`}
+                      disabled={userCredits < option.cost}
+                    >
+                      {userCredits < option.cost 
+                        ? `Necesitas ${option.cost - userCredits} créditos más`
+                        : `Elegir ${option.name.split(' ')[1]}`
+                      }
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
-        </div>
-      )}
+        )}
+
+        {step === 'form' && selectedType && (
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-2 border-[#E5E5E5]">
+              <CardHeader>
+                <CardTitle className="font-pixelify-sans text-xl flex items-center">
+                  {React.createElement(PIPELINE_OPTIONS[selectedType].icon, { 
+                    className: `w-6 h-6 mr-3 ${PIPELINE_OPTIONS[selectedType].textColor}` 
+                  })}
+                  {PIPELINE_OPTIONS[selectedType].name}
+                </CardTitle>
+                <CardDescription className="font-space-grotesk">
+                  {selectedType === 'specialized' 
+                    ? 'Proporciona información sobre el puesto objetivo para máxima personalización'
+                    : PIPELINE_OPTIONS[selectedType].description
+                  }
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {selectedType === 'specialized' && (
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="jobTitle" className="font-space-grotesk">Título del puesto</Label>
+                      <Input
+                        id="jobTitle"
+                        value={jobTitle}
+                        onChange={(e) => setJobTitle(e.target.value)}
+                        placeholder="ej. Desarrollador Full Stack Senior"
+                        className="font-space-grotesk"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="companyName" className="font-space-grotesk">Empresa (opcional)</Label>
+                      <Input
+                        id="companyName"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        placeholder="ej. Google, Microsoft, etc."
+                        className="font-space-grotesk"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="jobDescription" className="font-space-grotesk">Descripción del trabajo *</Label>
+                      <Textarea
+                        id="jobDescription"
+                        value={jobDescription}
+                        onChange={(e) => setJobDescription(e.target.value)}
+                        placeholder="Pega aquí la descripción completa del trabajo o los requisitos principales..."
+                        className="min-h-[120px] font-space-grotesk"
+                      />
+                      <p className="font-space-grotesk text-sm text-[#6B6B6B] mt-1">
+                        Incluye responsabilidades, requisitos técnicos, y cualquier información relevante del puesto.
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label className="font-space-grotesk">Requisitos clave (opcional)</Label>
+                      <div className="flex space-x-2 mb-2">
+                        <Input
+                          value={requirementInput}
+                          onChange={(e) => setRequirementInput(e.target.value)}
+                          placeholder="ej. React, Python, 3+ años experiencia"
+                          onKeyPress={(e) => e.key === 'Enter' && addRequirement()}
+                          className="font-space-grotesk"
+                        />
+                        <Button type="button" onClick={addRequirement} variant="outline" className="font-space-grotesk">
+                          Agregar
+                        </Button>
+                      </div>
+                      {keyRequirements.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {keyRequirements.map((req, index) => (
+                            <Badge key={index} variant="secondary" className="cursor-pointer font-space-grotesk" onClick={() => removeRequirement(req)}>
+                              {req} ×
+                            </Badge>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator />
+                  </div>
+                )}
+
+                <div className="bg-[#F7F7F5] p-6 rounded-xl">
+                  <h4 className="font-pixelify-sans font-bold text-[#1A1A1A] mb-3">¿QUÉ INCLUYE ESTA MEJORA?</h4>
+                  <ul className="font-space-grotesk text-sm text-[#6B6B6B] space-y-2">
+                    {PIPELINE_OPTIONS[selectedType].features.map((feature, index) => (
+                      <li key={index} className="flex items-start">
+                        <Star className="w-4 h-4 text-[#D97706] mr-2 mt-0.5 flex-shrink-0" />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-[#D97706]/10 to-[#D97706]/5 rounded-xl border border-[#D97706]/20">
+                  <div>
+                    <p className="font-space-grotesk text-sm font-medium text-[#1A1A1A]">Costo total</p>
+                    <p className="font-space-grotesk text-xs text-[#6B6B6B]">Se descontará de tu balance</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="font-pixelify-sans text-2xl font-bold text-[#D97706]">
+                      {PIPELINE_OPTIONS[selectedType].cost}
+                    </div>
+                    <p className="font-space-grotesk text-xs text-[#6B6B6B]">créditos</p>
+                  </div>
+                </div>
+
+                <Button 
+                  onClick={handleStartImprovement} 
+                  disabled={
+                    userCredits < PIPELINE_OPTIONS[selectedType].cost || 
+                    isLoading || 
+                    (selectedType === 'specialized' && !jobDescription.trim() && !jobTitle.trim())
+                  }
+                  className={`font-space-grotesk w-full ${PIPELINE_OPTIONS[selectedType].color} text-white py-4 text-lg font-bold ${PIPELINE_OPTIONS[selectedType].hoverColor} transition-all rounded-xl`}
+                  size="lg"
+                >
+                  {userCredits < PIPELINE_OPTIONS[selectedType].cost 
+                    ? `Necesitas ${PIPELINE_OPTIONS[selectedType].cost - userCredits} créditos más` 
+                    : (selectedType === 'specialized' && !jobDescription.trim() && !jobTitle.trim())
+                      ? 'Completa al menos el título o descripción'
+                      : `INICIAR MEJORA ${PIPELINE_OPTIONS[selectedType].name.split(' ')[1]} (${PIPELINE_OPTIONS[selectedType].cost} créditos)`
+                  }
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {step === 'processing' && (
+          <div className="max-w-4xl mx-auto">
+            <AIProgress 
+              progress={progress}
+              isActive={isLoading}
+              completedSteps={completedSteps}
+              pipelineType={selectedType || 'simple'}
+            />
+          </div>
+        )}
+
+        {step === 'completed' && enhancement && (
+          <div className="max-w-4xl mx-auto space-y-6">
+            <Card className="border-2 border-[#059669]">
+              <CardHeader>
+                <CardTitle className="font-pixelify-sans flex items-center text-[#059669]">
+                  <CheckCircle className="h-6 w-6 mr-2" />
+                  ¡MEJORA COMPLETADA!
+                </CardTitle>
+                <CardDescription className="font-space-grotesk">
+                  Tu CV ha sido optimizado exitosamente con nuestro pipeline de IAs especializadas.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center p-4 bg-[#F7F7F5] rounded-xl">
+                    <div className="font-pixelify-sans text-2xl font-bold text-[#D97706]">
+                      {enhancement.creditsUsed}
+                    </div>
+                    <p className="font-space-grotesk text-xs text-[#6B6B6B]">Créditos usados</p>
+                  </div>
+                  <div className="text-center p-4 bg-[#F7F7F5] rounded-xl">
+                    <div className="font-pixelify-sans text-2xl font-bold text-[#059669]">
+                      {enhancement.pipelineInfo?.stepsCompleted || 0}
+                    </div>
+                    <p className="font-space-grotesk text-xs text-[#6B6B6B]">IAs trabajaron</p>
+                  </div>
+                  <div className="text-center p-4 bg-[#F7F7F5] rounded-xl">
+                    <div className="font-pixelify-sans text-2xl font-bold text-[#7C3AED]">
+                      {enhancement.pipelineInfo?.finalScore || 0}
+                    </div>
+                    <p className="font-space-grotesk text-xs text-[#6B6B6B]">Score final</p>
+                  </div>
+                  <div className="text-center p-4 bg-[#F7F7F5] rounded-xl">
+                    <div className="font-pixelify-sans text-2xl font-bold text-[#DC2626]">
+                      {Math.round((enhancement.pipelineInfo?.totalTime || 0) / 1000)}s
+                    </div>
+                    <p className="font-space-grotesk text-xs text-[#6B6B6B]">Tiempo total</p>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    onClick={handleDownload} 
+                    className="font-space-grotesk flex items-center justify-center bg-[#D97706] hover:bg-[#B45309] text-white flex-1"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Descargar CV Mejorado
+                  </Button>
+                  <Button 
+                    onClick={() => router.push('/dashboard')}
+                    variant="outline"
+                    className="font-space-grotesk flex-1"
+                  >
+                    Volver al Dashboard
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-2 border-[#E5E5E5]">
+              <CardHeader>
+                <CardTitle className="font-pixelify-sans">CV OPTIMIZADO</CardTitle>
+                <CardDescription className="font-space-grotesk">
+                  Vista previa de tu currículum mejorado por nuestras IAs especializadas.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-[#F7F7F5] p-6 rounded-xl max-h-96 overflow-y-auto">
+                  <pre className="font-space-grotesk whitespace-pre-wrap text-sm">
+                    {enhancement.enhancedContent}
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

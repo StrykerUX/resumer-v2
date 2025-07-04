@@ -29,8 +29,9 @@ interface AnalysisResultsProps {
   analysis: AnalysisData;
   suggestions: SuggestionsData;
   atsScore: number;
-  onStartImprovement: (type: 'general' | 'targeted') => void;
+  onStartImprovement: (type: 'simple' | 'advanced' | 'specialized') => void;
   isLoading?: boolean;
+  resumeId?: string;
 }
 
 export default function AnalysisResults({ 
@@ -38,7 +39,8 @@ export default function AnalysisResults({
   suggestions, 
   atsScore, 
   onStartImprovement, 
-  isLoading = false 
+  isLoading = false,
+  resumeId
 }: AnalysisResultsProps) {
   
   const getScoreColor = (score: number) => {
@@ -216,43 +218,68 @@ export default function AnalysisResults({
         <CardHeader>
           <CardTitle>¿Qué sigue?</CardTitle>
           <CardDescription>
-            Elige cómo quieres mejorar tu CV basándote en este análisis
+            Elige el nivel de mejora que necesitas para tu currículum
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 border border-gray-200 rounded-lg">
-              <h4 className="font-medium mb-2">Mejora General</h4>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="p-4 border-2 border-orange-200 rounded-lg hover:border-orange-400 transition-all">
+              <h4 className="font-medium mb-2 text-orange-700">Mejora Simple</h4>
               <p className="text-sm text-gray-600 mb-4">
-                Aplicamos las recomendaciones del análisis para crear una versión mejorada de tu CV.
+                2 IAs trabajando: Content Enhancer + Humanizer. Score garantizado: 75-85/100.
               </p>
               <div className="flex items-center justify-between">
-                <Badge variant="secondary">10 créditos</Badge>
+                <Badge className="bg-orange-100 text-orange-700">20 créditos</Badge>
                 <Button 
-                  onClick={() => onStartImprovement('general')}
+                  onClick={() => onStartImprovement('simple')}
                   disabled={isLoading}
+                  className="bg-orange-600 hover:bg-orange-700"
                 >
-                  Comenzar mejora
+                  Elegir Simple
                 </Button>
               </div>
             </div>
 
-            <div className="p-4 border border-gray-200 rounded-lg">
-              <h4 className="font-medium mb-2">Mejora Específica</h4>
+            <div className="p-4 border-2 border-purple-200 rounded-lg hover:border-purple-400 transition-all">
+              <h4 className="font-medium mb-2 text-purple-700">Mejora Avanzada</h4>
               <p className="text-sm text-gray-600 mb-4">
-                Optimizamos tu CV para una oferta de trabajo específica que tengas en mente.
+                5 IAs especializadas con validación de recruiter. Score garantizado: 90-95/100.
               </p>
               <div className="flex items-center justify-between">
-                <Badge variant="secondary">15 créditos</Badge>
+                <Badge className="bg-purple-100 text-purple-700">30 créditos</Badge>
                 <Button 
-                  onClick={() => onStartImprovement('targeted')}
+                  onClick={() => onStartImprovement('advanced')}
                   disabled={isLoading}
-                  variant="outline"
+                  className="bg-purple-600 hover:bg-purple-700"
                 >
-                  Comenzar mejora
+                  Elegir Avanzada
                 </Button>
               </div>
             </div>
+
+            <div className="p-4 border-2 border-red-200 rounded-lg hover:border-red-400 transition-all">
+              <h4 className="font-medium mb-2 text-red-700">Mejora Especializada</h4>
+              <p className="text-sm text-gray-600 mb-4">
+                6 IAs + alineación específica para el puesto objetivo. Score garantizado: 93-98/100.
+              </p>
+              <div className="flex items-center justify-between">
+                <Badge className="bg-red-100 text-red-700">35 créditos</Badge>
+                <Button 
+                  onClick={() => onStartImprovement('specialized')}
+                  disabled={isLoading}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Elegir Especializada
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+            <p className="text-sm text-blue-700">
+              <strong>💡 Garantía de calidad:</strong> Si tu CV no alcanza el score mínimo garantizado, 
+              reintentamos automáticamente o te devolvemos los créditos.
+            </p>
           </div>
         </CardContent>
       </Card>

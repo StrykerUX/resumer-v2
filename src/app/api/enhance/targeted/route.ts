@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { enhanceCV } from '@/lib/openai';
+import { createAIPipeline } from '@/lib/ai-pipeline';
 
-const TARGETED_ENHANCEMENT_COST = 15; // Costo en créditos para mejora específica
+const TARGETED_ENHANCEMENT_COST = 35; // Costo en créditos para mejora especializada
 
 export async function POST(request: NextRequest) {
   try {
@@ -126,18 +126,52 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('✨ Generando mejora específica con IA...');
+    console.log('✨ Ejecutando pipeline especializado de mejora...');
 
-    // Generar mejora usando IA con información del trabajo
-    const enhancedContent = await enhanceCV(
+    // Crear perfil de usuario para el enhancement
+    const userProfile = {
+      industry: analysisData.userAnswers?.industry || 'general',
+      experienceLevel: analysisData.userAnswers?.experienceLevel || 'mid',
+      targetRole: jobInfo.title || analysisData.userAnswers?.targetRole,
+      careerObjective: analysisData.userAnswers?.careerObjective
+    };
+
+    // Crear contexto del trabajo objetivo
+    const jobContext = {
+      title: jobInfo.title,
+      company: jobInfo.company,
+      description: jobInfo.description,
+      requirements: Array.isArray(jobInfo.requirements) ? jobInfo.requirements : [],
+      preferredSkills: [],
+      keywordDensity: {}
+    };
+
+    // Ejecutar pipeline especializado (Content Enhancer + Position Enhancer + Industry Recruiter + Expert Recruiter + Head Hunter + Humanizer)
+    const pipeline = createAIPipeline();
+    
+    const pipelineResult = await pipeline.executePipeline(
+      'specialized',
       originalText,
-      aiAnalysis,
-      improvements,
-      keywords,
-      atsOptimization,
-      'targeted',
-      jobInfo
+      {
+        userProfile,
+        jobContext,
+        userId: session.user.id,
+        resumeId: resumeId,
+        analysisResult: {
+          improvements: improvements,
+          keywords: keywords,
+          atsOptimization: atsOptimization,
+          atsScore: resume.analysis.atsScore
+        }
+      }
     );
+
+    if (!pipelineResult.success) {
+      throw new Error(`Pipeline failed: ${pipelineResult.error}`);
+    }
+
+    const enhancementResult = pipelineResult.result as any;
+    const enhancedContent = enhancementResult.enhancedContent;
 
     // Actualizar enhancement con el contenido mejorado
     const updatedEnhancement = await prisma.enhancement.update({
@@ -154,10 +188,16 @@ export async function POST(request: NextRequest) {
             atsOptimization: atsOptimization,
             atsScore: resume.analysis.atsScore
           },
+          pipelineResult: pipelineResult,
+          scoreImprovement: enhancementResult.scoreImprovement || {},
+          improvementsSummary: enhancementResult.improvementsSummary || [],
           metadata: {
-            enhancementType: 'targeted',
+            enhancementType: 'specialized',
             processedAt: new Date().toISOString(),
-            creditsUsed: TARGETED_ENHANCEMENT_COST
+            creditsUsed: TARGETED_ENHANCEMENT_COST,
+            totalTime: pipelineResult.totalTime,
+            stepsCompleted: pipelineResult.steps.length,
+            finalScore: pipelineResult.finalScore
           }
         }
       }
@@ -175,11 +215,11 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         amount: -TARGETED_ENHANCEMENT_COST,
         type: 'usage',
-        description: `Mejora específica de CV para: ${jobTitle || 'puesto específico'}`
+        description: `Mejora especializada de CV con pipeline de 6 IAs para: ${jobTitle || 'puesto específico'}`
       }
     });
 
-    console.log('🎉 Mejora específica completada exitosamente');
+    console.log('🎉 Mejora especializada completada exitosamente');
 
     return NextResponse.json({
       success: true,
@@ -188,7 +228,25 @@ export async function POST(request: NextRequest) {
       jobInfo: jobInfo,
       creditsUsed: TARGETED_ENHANCEMENT_COST,
       remainingCredits: user.credits - TARGETED_ENHANCEMENT_COST,
-      enhancement: updatedEnhancement
+      enhancement: updatedEnhancement,
+      // Datos del pipeline especializado
+      pipelineInfo: {
+        type: 'specialized',
+        totalTime: pipelineResult.totalTime,
+        stepsCompleted: pipelineResult.steps.length,
+        finalScore: pipelineResult.finalScore,
+        aisUsed: [
+          'Content Enhancer',
+          'Position Enhancer (alineación específica)',
+          'Industry Recruiter', 
+          'Expert Senior Recruiter',
+          'Head Hunter Enhancer',
+          'Humanizer & Format Expert'
+        ]
+      },
+      scoreImprovement: enhancementResult.scoreImprovement || {},
+      improvementsSummary: enhancementResult.improvementsSummary || [],
+      changesExplanation: enhancementResult.changesExplanation || 'Mejoras especializadas aplicadas con 6 IAs para alineación perfecta al puesto objetivo'
     });
 
   } catch (error) {

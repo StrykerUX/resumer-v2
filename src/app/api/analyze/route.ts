@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { analyzeCV } from '@/lib/openai';
+import { createAIPipeline } from '@/lib/ai-pipeline';
 import { CVProcessor, validateCVContent, cleanCVText, getProcessingInfo } from '@/lib/file-processor';
 
-const ANALYSIS_COST = 5; // Costo en créditos para análisis
+const ANALYSIS_COST = 10; // Costo en créditos para análisis
 
 export async function POST(request: NextRequest) {
   let resumeId: string | null = null;
@@ -107,31 +107,85 @@ export async function POST(request: NextRequest) {
       data: { status: 'analyzing' }
     });
 
-    // Realizar análisis con IA
-    const analysis = await analyzeCV(cleanedText, parsedAnswers);
+    // Crear perfil de usuario para el análisis
+    const userProfile = {
+      industry: parsedAnswers.industry || 'general',
+      experienceLevel: parsedAnswers.experienceLevel || 'mid',
+      targetRole: parsedAnswers.targetRole,
+      careerObjective: parsedAnswers.careerObjective
+    };
 
-    // Calcular score ATS básico (placeholder - podría ser más sofisticado)
-    const atsScore = calculateATSScore(cleanedText);
-
-    // Crear análisis en la base de datos
-    const analysisRecord = await prisma.analysis.create({
-      data: {
-        resumeId: resumeId,
-        aiAnalysis: {
-          content: analysis,
-          processedText: cleanedText,
-          metadata: processedFile.metadata,
-          userAnswers: parsedAnswers,
-          timestamp: new Date().toISOString()
-        },
-        suggestions: {
-          keywords: extractKeywords(cleanedText),
-          improvements: extractImprovements(analysis),
-          atsOptimization: generateATSOptimization(cleanedText)
-        },
-        atsScore: atsScore
+    // Ejecutar pipeline de análisis con IA especializada
+    console.log('🧠 Ejecutando pipeline de análisis con IA experta...');
+    const pipeline = createAIPipeline();
+    
+    const pipelineResult = await pipeline.executePipeline(
+      'analysis',
+      cleanedText,
+      {
+        userProfile,
+        userId: session.user.id,
+        resumeId: resumeId
       }
+    );
+
+    if (!pipelineResult.success) {
+      throw new Error(`Pipeline failed: ${pipelineResult.error}`);
+    }
+
+    const analysisResult = pipelineResult.result as any;
+
+    // Verificar si ya existe un análisis para este resume
+    const existingAnalysis = await prisma.analysis.findUnique({
+      where: { resumeId: resumeId }
     });
+
+    let analysisRecord;
+    if (existingAnalysis) {
+      // Actualizar análisis existente
+      analysisRecord = await prisma.analysis.update({
+        where: { resumeId: resumeId },
+        data: {
+          aiAnalysis: {
+            content: analysisResult.detailedFeedback || 'Análisis completado',
+            processedText: cleanedText,
+            metadata: processedFile.metadata,
+            userAnswers: parsedAnswers,
+            timestamp: new Date().toISOString(),
+            pipelineResult: pipelineResult,
+            categoryScores: analysisResult.categoryScores || {}
+          },
+          suggestions: {
+            keywords: analysisResult.keywords || [],
+            improvements: analysisResult.improvements || [],
+            atsOptimization: analysisResult.atsOptimization || []
+          },
+          atsScore: analysisResult.overallScore || pipelineResult.finalScore || 0
+        }
+      });
+    } else {
+      // Crear nuevo análisis
+      analysisRecord = await prisma.analysis.create({
+        data: {
+          resumeId: resumeId,
+          aiAnalysis: {
+            content: analysisResult.detailedFeedback || 'Análisis completado',
+            processedText: cleanedText,
+            metadata: processedFile.metadata,
+            userAnswers: parsedAnswers,
+            timestamp: new Date().toISOString(),
+            pipelineResult: pipelineResult,
+            categoryScores: analysisResult.categoryScores || {}
+          },
+          suggestions: {
+            keywords: analysisResult.keywords || [],
+            improvements: analysisResult.improvements || [],
+            atsOptimization: analysisResult.atsOptimization || []
+          },
+          atsScore: analysisResult.overallScore || pipelineResult.finalScore || 0
+        }
+      });
+    }
 
     // Descontar créditos del usuario
     await prisma.user.update({
@@ -160,16 +214,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       analysisId: analysisRecord.id,
-      analysis: analysis,
-      atsScore: atsScore,
+      analysis: analysisResult.detailedFeedback || 'Análisis completado',
+      atsScore: analysisResult.overallScore || pipelineResult.finalScore || 0,
       creditsUsed: ANALYSIS_COST,
       remainingCredits: user.credits - ANALYSIS_COST,
+      // Nuevos datos del pipeline
+      categoryScores: analysisResult.categoryScores || {},
+      strengths: analysisResult.strengths || [],
+      improvements: analysisResult.improvements || [],
+      recommendations: analysisResult.recommendations || [],
+      keywords: analysisResult.keywords || [],
+      atsOptimization: analysisResult.atsOptimization || [],
+      pipelineInfo: {
+        totalTime: pipelineResult.totalTime,
+        stepsCompleted: pipelineResult.steps.length,
+        finalScore: pipelineResult.finalScore
+      },
       // Datos adicionales para el frontend
       processedText: cleanedText.substring(0, 500) + '...', // Preview del texto
-      wordCount: processedFile.metadata.wordCount,
-      keywords: extractKeywords(cleanedText),
-      improvements: extractImprovements(analysis),
-      atsOptimization: generateATSOptimization(cleanedText)
+      wordCount: processedFile.metadata.wordCount
     });
 
   } catch (error) {

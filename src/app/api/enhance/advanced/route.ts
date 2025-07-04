@@ -4,7 +4,7 @@ import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createAIPipeline } from '@/lib/ai-pipeline';
 
-const GENERAL_ENHANCEMENT_COST = 20; // Costo en créditos para mejora simple
+const ADVANCED_ENHANCEMENT_COST = 30; // Costo en créditos para mejora avanzada
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,17 +20,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'resumeId is required' }, { status: 400 });
     }
 
-    console.log('🔧 Iniciando mejora general para resume:', resumeId);
+    console.log('🔧 Iniciando mejora avanzada para resume:', resumeId);
 
     // Verificar que el usuario tenga créditos suficientes
     const user = await prisma.user.findUnique({
       where: { id: session.user.id }
     });
 
-    if (!user || user.credits < GENERAL_ENHANCEMENT_COST) {
+    if (!user || user.credits < ADVANCED_ENHANCEMENT_COST) {
       return NextResponse.json({ 
         error: 'Insufficient credits',
-        required: GENERAL_ENHANCEMENT_COST,
+        required: ADVANCED_ENHANCEMENT_COST,
         available: user?.credits || 0
       }, { status: 402 });
     }
@@ -56,11 +56,11 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    // Verificar si ya existe una mejora general para este CV
+    // Verificar si ya existe una mejora avanzada para este CV
     const existingEnhancement = await prisma.enhancement.findFirst({
       where: {
         resumeId: resumeId,
-        enhancementType: 'general'
+        enhancementType: 'advanced'
       }
     });
 
@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({
         success: true,
         enhancement: existingEnhancement,
-        message: 'General enhancement already exists for this resume'
+        message: 'Advanced enhancement already exists for this resume'
       });
     }
 
@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
     const keywords = suggestions.keywords || [];
     const atsOptimization = suggestions.atsOptimization || [];
 
-    console.log('📊 Datos del análisis extraídos:');
+    console.log('📊 Datos del análisis extraídos para mejora avanzada:');
     console.log('- Texto original:', originalText?.substring(0, 100) + '...');
     console.log('- Mejoras sugeridas:', improvements.length);
     console.log('- Palabras clave:', keywords.length);
@@ -92,8 +92,8 @@ export async function POST(request: NextRequest) {
     const enhancement = await prisma.enhancement.create({
       data: {
         resumeId: resumeId,
-        enhancementType: 'general',
-        creditsUsed: GENERAL_ENHANCEMENT_COST,
+        enhancementType: 'advanced',
+        creditsUsed: ADVANCED_ENHANCEMENT_COST,
         status: 'processing',
         enhancedContent: {
           originalText: originalText,
@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    console.log('✨ Ejecutando pipeline simple de mejora...');
+    console.log('✨ Ejecutando pipeline avanzado de mejora...');
 
     // Crear perfil de usuario para el enhancement
     const userProfile = {
@@ -117,11 +117,11 @@ export async function POST(request: NextRequest) {
       careerObjective: analysisData.userAnswers?.careerObjective
     };
 
-    // Ejecutar pipeline simple (Content Enhancer + Humanizer)
+    // Ejecutar pipeline avanzado (Content Enhancer + Industry Recruiter + Expert Recruiter + Head Hunter + Humanizer)
     const pipeline = createAIPipeline();
     
     const pipelineResult = await pipeline.executePipeline(
-      'simple',
+      'advanced',
       originalText,
       {
         userProfile,
@@ -161,9 +161,9 @@ export async function POST(request: NextRequest) {
           scoreImprovement: enhancementResult.scoreImprovement || {},
           improvementsSummary: enhancementResult.improvementsSummary || [],
           metadata: {
-            enhancementType: 'simple',
+            enhancementType: 'advanced',
             processedAt: new Date().toISOString(),
-            creditsUsed: GENERAL_ENHANCEMENT_COST,
+            creditsUsed: ADVANCED_ENHANCEMENT_COST,
             totalTime: pipelineResult.totalTime,
             stepsCompleted: pipelineResult.steps.length,
             finalScore: pipelineResult.finalScore
@@ -175,42 +175,49 @@ export async function POST(request: NextRequest) {
     // Descontar créditos del usuario
     await prisma.user.update({
       where: { id: session.user.id },
-      data: { credits: user.credits - GENERAL_ENHANCEMENT_COST }
+      data: { credits: user.credits - ADVANCED_ENHANCEMENT_COST }
     });
 
     // Registrar transacción de créditos
     await prisma.creditTransaction.create({
       data: {
         userId: session.user.id,
-        amount: -GENERAL_ENHANCEMENT_COST,
+        amount: -ADVANCED_ENHANCEMENT_COST,
         type: 'usage',
-        description: 'Mejora general de CV con IA'
+        description: 'Mejora avanzada de CV con pipeline de 5 IAs'
       }
     });
 
-    console.log('🎉 Mejora general completada exitosamente');
+    console.log('🎉 Mejora avanzada completada exitosamente');
 
     return NextResponse.json({
       success: true,
       enhancementId: updatedEnhancement.id,
       enhancedContent: enhancedContent,
-      creditsUsed: GENERAL_ENHANCEMENT_COST,
-      remainingCredits: user.credits - GENERAL_ENHANCEMENT_COST,
+      creditsUsed: ADVANCED_ENHANCEMENT_COST,
+      remainingCredits: user.credits - ADVANCED_ENHANCEMENT_COST,
       enhancement: updatedEnhancement,
-      // Nuevos datos del pipeline
+      // Datos del pipeline avanzado
       pipelineInfo: {
-        type: 'simple',
+        type: 'advanced',
         totalTime: pipelineResult.totalTime,
         stepsCompleted: pipelineResult.steps.length,
-        finalScore: pipelineResult.finalScore
+        finalScore: pipelineResult.finalScore,
+        aisUsed: [
+          'Content Enhancer',
+          'Industry Recruiter', 
+          'Expert Senior Recruiter',
+          'Head Hunter Enhancer',
+          'Humanizer & Format Expert'
+        ]
       },
       scoreImprovement: enhancementResult.scoreImprovement || {},
       improvementsSummary: enhancementResult.improvementsSummary || [],
-      changesExplanation: enhancementResult.changesExplanation || 'Mejoras aplicadas exitosamente'
+      changesExplanation: enhancementResult.changesExplanation || 'Mejoras avanzadas aplicadas con 5 IAs especializadas'
     });
 
   } catch (error) {
-    console.error('❌ Error in general enhancement:', error);
+    console.error('❌ Error in advanced enhancement:', error);
     
     return NextResponse.json(
       { error: error instanceof Error ? error.message : 'Internal server error' },

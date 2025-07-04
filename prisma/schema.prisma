@@ -82,12 +82,17 @@ model Resume {
 }
 
 model Analysis {
-  id          String   @id @default(cuid())
-  resumeId    String   @unique
-  aiAnalysis  Json     // Store AI analysis results
-  suggestions Json     // Store improvement suggestions
-  atsScore    Int?     // ATS compatibility score
-  createdAt   DateTime @default(now())
+  id              String   @id @default(cuid())
+  resumeId        String   @unique
+  aiAnalysis      Json     // Store AI analysis results
+  suggestions     Json     // Store improvement suggestions
+  atsScore        Int?     // ATS compatibility score
+  categoryScores  Json?    // Detailed scoring breakdown by category
+  pipelineData    Json?    // Pipeline execution data and timing
+  finalScore      Int?     // Final overall score from pipeline
+  grade           String?  // Letter grade (A+, A, B, C, D, F)
+  marketReadiness String?  // Market readiness assessment
+  createdAt       DateTime @default(now())
 
   resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
 }
@@ -95,12 +100,16 @@ model Analysis {
 model Enhancement {
   id              String   @id @default(cuid())
   resumeId        String
-  enhancementType String   // "general" or "targeted"
-  jobDescription  String?  // For targeted enhancements
+  enhancementType String   // "simple", "advanced", "specialized"
+  jobDescription  String?  // For specialized enhancements
   enhancedContent Json     // The enhanced resume content
   creditsUsed     Int
   status          String   @default("processing") // processing, completed, error
   downloadUrl     String?
+  pipelineData    Json?    // Pipeline execution data and timing
+  scoreImprovement Json?   // Before/after score comparison
+  finalScore      Int?     // Final score after enhancement
+  processingTime  Int?     // Total processing time in milliseconds
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
