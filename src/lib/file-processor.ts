@@ -130,14 +130,9 @@ export async function extractTextWithOCR(buffer: Buffer, fileName: string, isIma
     
     console.log(`📸 Procesando ${images.length} imagen(es) con OCR...`);
     
-    const worker = await createWorker({
-      logger: m => console.log('Tesseract:', m.status, m.progress),
-    });
+    const worker = await createWorker('eng+spa');
     
     try {
-      await worker.loadLanguage('eng+spa');
-      await worker.initialize('eng+spa');
-      
       let fullText = '';
       
       for (let i = 0; i < images.length; i++) {
