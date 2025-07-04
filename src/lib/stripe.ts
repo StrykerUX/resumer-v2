@@ -13,21 +13,21 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 // Configuración de precios multi-moneda
 export const STRIPE_PRICES = {
   // MXN (Pesos Mexicanos)
-  basic_mxn: process.env.STRIPE_PRICE_BASIC_MXN!,     // $69 MXN - 50 créditos
-  pro_mxn: process.env.STRIPE_PRICE_PRO_MXN!,         // $129 MXN - 120 créditos  
-  premium_mxn: process.env.STRIPE_PRICE_PREMIUM_MXN!, // $199 MXN - 200 créditos
+  basic_mxn: process.env.STRIPE_PRICE_BASIC_MXN!,     // $69 MXN - 100 créditos
+  pro_mxn: process.env.STRIPE_PRICE_PRO_MXN!,         // $129 MXN - 220 créditos  
+  premium_mxn: process.env.STRIPE_PRICE_PREMIUM_MXN!, // $199 MXN - 320 créditos
   
   // USD (Dólares)
-  basic_usd: process.env.STRIPE_PRICE_BASIC_USD!,     // $3.70 USD - 50 créditos
-  pro_usd: process.env.STRIPE_PRICE_PRO_USD!,         // $6.90 USD - 120 créditos
-  premium_usd: process.env.STRIPE_PRICE_PREMIUM_USD!, // $10.70 USD - 200 créditos
+  basic_usd: process.env.STRIPE_PRICE_BASIC_USD!,     // $3.70 USD - 100 créditos
+  pro_usd: process.env.STRIPE_PRICE_PRO_USD!,         // $6.90 USD - 220 créditos
+  premium_usd: process.env.STRIPE_PRICE_PREMIUM_USD!, // $10.70 USD - 320 créditos
 }
 
 // Mapeo de planes a créditos
 export const PLAN_CREDITS = {
-  basic: 50,
-  pro: 120,
-  premium: 200,
+  basic: 100,
+  pro: 220,
+  premium: 320,
 }
 
 // Mapeo de planes a precios por moneda
