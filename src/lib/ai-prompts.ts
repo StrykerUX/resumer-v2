@@ -244,11 +244,11 @@ FORMATO DE RESPUESTA OBLIGATORIO:
 }
 
 UMBRALES DE CALIDAD:
-- Simple: Mínimo 75/100
-- Advanced: Mínimo 85/100  
-- Specialized: Mínimo 90/100`;
+- Simple: Mínimo 70/100
+- Advanced: Mínimo 78/100  
+- Specialized: Mínimo 85/100`;
 
-    const minScore = enhancementType === 'simple' ? 75 : enhancementType === 'advanced' ? 85 : 90;
+    const minScore = enhancementType === 'simple' ? 70 : enhancementType === 'advanced' ? 78 : 85;
 
     const userPrompt = `CV A VALIDAR (Nivel: ${enhancementType.toUpperCase()}):
 ${cvText}

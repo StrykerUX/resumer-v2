@@ -25,19 +25,19 @@ export interface CheckpointLog {
 export class CheckpointSystem {
   private static readonly CHECKPOINT_CONFIGS: Record<string, CheckpointConfig> = {
     simple: {
-      minScore: 75,
+      minScore: 70,
       maxRetries: 2,
       refundOnFailure: true,
       notificationRequired: false
     },
     advanced: {
-      minScore: 85,
+      minScore: 78,
       maxRetries: 2,
       refundOnFailure: true,
       notificationRequired: true
     },
     specialized: {
-      minScore: 90,
+      minScore: 85,
       maxRetries: 2,
       refundOnFailure: true,
       notificationRequired: true

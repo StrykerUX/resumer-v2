@@ -80,9 +80,9 @@ export async function POST(request: NextRequest) {
     const keywords = suggestions.keywords || [];
     const atsOptimization = suggestions.atsOptimization || [];
 
-    console.log('🔄 Re-procesando archivo original para mejor calidad...');
+    console.log('🚀 Iniciando extracción híbrida OpenAI Vision + Local...');
 
-    // Re-procesar el archivo original para obtener texto limpio
+    // Descargar archivo original desde R2
     const { generatePresignedDownloadUrl, extractObjectKey } = await import('@/lib/r2-client');
     const objectKey = extractObjectKey(resume.fileUrl);
     const presignedUrl = await generatePresignedDownloadUrl(objectKey, 300);
@@ -94,18 +94,27 @@ export async function POST(request: NextRequest) {
 
     const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
     
-    // Procesar con el sistema híbrido mejorado
-    const { CVProcessor, validateCVContent, cleanCVText } = await import('@/lib/file-processor');
-    const cvProcessor = new CVProcessor();
-    const processedFile = await cvProcessor.processCV(fileBuffer, resume.originalName, resume.mimeType);
-    
-    const validation = validateCVContent(processedFile);
-    if (!validation.valid) {
-      throw new Error(`Error procesando archivo: ${validation.error}`);
+    // Usar el extractor híbrido OpenAI Vision + Local
+    const { OpenAIVisionExtractor } = await import('@/lib/openai-vision-extractor');
+    const extractionResult = await OpenAIVisionExtractor.extractTextFromFile(
+      fileBuffer, 
+      resume.originalName, 
+      resume.mimeType, 
+      'hybrid'
+    );
+
+    if (!extractionResult.success) {
+      throw new Error('No se pudo extraer texto del archivo con ningún método');
     }
 
-    const originalText = cleanCVText(processedFile.text);
-    console.log('✅ Archivo re-procesado exitosamente. Caracteres:', originalText.length);
+    const originalText = extractionResult.text;
+    console.log(`✅ Extracción híbrida exitosa:`, {
+      método: extractionResult.method,
+      confianza: extractionResult.confidence,
+      caracteres: originalText.length,
+      palabras: extractionResult.wordCount,
+      tiempo: extractionResult.metadata.processingTime + 'ms'
+    });
 
     console.log('📊 Datos del análisis extraídos para mejora avanzada:');
     console.log('- Texto original:', originalText?.substring(0, 100) + '...');

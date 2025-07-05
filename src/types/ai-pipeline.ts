@@ -198,9 +198,9 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
       AI_AGENTS.HEAD_HUNTER,
       AI_AGENTS.HUMANIZER
     ],
-    minScore: 85,
+    minScore: 78,
     maxRetries: 2,
-    cost: 30
+    cost: 20
   },
   specialized: {
     type: 'specialized',
@@ -212,9 +212,9 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
       AI_AGENTS.HEAD_HUNTER,
       AI_AGENTS.HUMANIZER
     ],
-    minScore: 90,
+    minScore: 85,
     maxRetries: 2,
-    cost: 35
+    cost: 25
   }
 };
 
