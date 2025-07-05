@@ -26,6 +26,9 @@ export interface PipelineConfig {
   minScore: number;
   maxRetries: number;
   cost: number;
+  // Nuevos campos para mejora progresiva
+  minImprovementPercentage: number;
+  fallbackMinScore: number; // Score mínimo absoluto como respaldo
 }
 
 export interface CVAnalysisResult {
@@ -74,6 +77,11 @@ export interface CheckpointResult {
   shouldRetry: boolean;
   retryCount: number;
   maxRetries: number;
+  // Nuevos campos para mejora progresiva
+  originalScore?: number;
+  improvementPercentage?: number;
+  minRequiredImprovement?: number;
+  improvementType: 'absolute' | 'progressive';
 }
 
 export interface IndustryContext {
@@ -180,14 +188,18 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
     steps: [AI_AGENTS.ANALYST],
     minScore: 0,
     maxRetries: 1,
-    cost: 10
+    cost: 10,
+    minImprovementPercentage: 0, // No aplica para análisis
+    fallbackMinScore: 0
   },
   simple: {
     type: 'simple',
     steps: [AI_AGENTS.CONTENT_ENHANCER, AI_AGENTS.HUMANIZER],
-    minScore: 75,
+    minScore: 70, // Mantener para compatibilidad
     maxRetries: 2,
-    cost: 20
+    cost: 20,
+    minImprovementPercentage: 5, // 5% mejora mínima
+    fallbackMinScore: 60 // Score mínimo absoluto
   },
   advanced: {
     type: 'advanced',
@@ -198,9 +210,11 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
       AI_AGENTS.HEAD_HUNTER,
       AI_AGENTS.HUMANIZER
     ],
-    minScore: 78,
+    minScore: 75, // Mantener para compatibilidad
     maxRetries: 2,
-    cost: 20
+    cost: 20,
+    minImprovementPercentage: 8, // 8% mejora mínima
+    fallbackMinScore: 65 // Score mínimo absoluto
   },
   specialized: {
     type: 'specialized',
@@ -212,9 +226,11 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
       AI_AGENTS.HEAD_HUNTER,
       AI_AGENTS.HUMANIZER
     ],
-    minScore: 85,
+    minScore: 80, // Mantener para compatibilidad
     maxRetries: 2,
-    cost: 25
+    cost: 25,
+    minImprovementPercentage: 10, // 10% mejora mínima
+    fallbackMinScore: 70 // Score mínimo absoluto
   }
 };
 

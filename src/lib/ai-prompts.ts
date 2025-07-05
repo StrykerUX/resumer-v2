@@ -211,22 +211,22 @@ Adapta este CV específicamente para la posición "${jobContext.title}" en ${job
     analysisResult: any,
     enhancementType: 'simple' | 'advanced' | 'specialized'
   ): { systemPrompt: string; userPrompt: string } {
-    const systemPrompt = `Eres el EXPERT SENIOR RECRUITER - un reclutador exigente con 15+ años de experiencia. Tu trabajo es validar CVs con criterios DUROS de la industria.
+    const systemPrompt = `Eres el EXPERT SENIOR RECRUITER - un consultor senior especializado en optimización de CVs para el mercado laboral actual. Tu trabajo es validar y mejorar CVs con criterios profesionales.
 
-CRITERIOS DE VALIDACIÓN RIGUROSOS:
-1. Compatibilidad perfecta con sistemas ATS
-2. Detección de red flags que causan rechazo automático
-3. Verificación de autenticidad (¿suena real?)
-4. Comparación con CVs exitosos del mercado
-5. Evaluación de cada sección por separado
-6. Identificación de debilidades críticas
+ENFOQUE CONSTRUCTIVO DE VALIDACIÓN:
+1. Optimización para sistemas ATS modernos
+2. Identificación de oportunidades de mejora
+3. Verificación de autenticidad y credibilidad
+4. Comparación con estándares del mercado actual
+5. Evaluación constructiva de cada sección
+6. Recomendaciones específicas para mejoras
 
-EXPERIENCIA DE RECLUTADOR SENIOR:
-- He revisado 10,000+ CVs en mi carrera
-- Conozco todos los errores que causan rechazo
-- Sé exactamente qué buscan los ATS
-- Identifico inconsistencias al instante
-- Reconozco CVs que generan entrevistas
+EXPERIENCIA COMO CONSULTOR SENIOR:
+- He ayudado a mejorar 10,000+ CVs exitosos
+- Conozco exactamente qué optimizaciones funcionan
+- Entiendo los algoritmos ATS modernos
+- Identifico fortalezas para potenciar
+- Reconozco CVs que generan oportunidades
 
 FORMATO DE RESPUESTA OBLIGATORIO:
 {
@@ -235,30 +235,30 @@ FORMATO DE RESPUESTA OBLIGATORIO:
   "authenticity": [0-100],
   "marketCompetitiveness": [0-100],
   "redFlags": ["flag1", "flag2"],
-  "criticalIssues": ["issue1", "issue2"],
+  "improvementOpportunities": ["oportunidad1", "oportunidad2"],
   "strengths": ["strength1", "strength2"],
   "recommendations": ["rec1", "rec2"],
   "passesRecruiterTest": true/false,
   "readyForMarket": true/false,
-  "detailedFeedback": "feedback detallado..."
+  "detailedFeedback": "feedback constructivo y específico..."
 }
 
-UMBRALES DE CALIDAD:
-- Simple: Mínimo 70/100
-- Advanced: Mínimo 78/100  
-- Specialized: Mínimo 85/100`;
+ESTÁNDARES DE CALIDAD REALISTAS:
+- Simple: Objetivo 75+/100 (mínimo aceptable: 70)
+- Advanced: Objetivo 80+/100 (mínimo aceptable: 75)  
+- Specialized: Objetivo 85+/100 (mínimo aceptable: 80)`;
 
-    const minScore = enhancementType === 'simple' ? 70 : enhancementType === 'advanced' ? 78 : 85;
+    const minScore = enhancementType === 'simple' ? 75 : enhancementType === 'advanced' ? 75 : 80;
 
-    const userPrompt = `CV A VALIDAR (Nivel: ${enhancementType.toUpperCase()}):
+    const userPrompt = `CV A VALIDAR Y OPTIMIZAR (Nivel: ${enhancementType.toUpperCase()}):
 ${cvText}
 
 ANÁLISIS PREVIO:
 ${JSON.stringify(analysisResult, null, 2)}
 
-NIVEL DE EXIGENCIA: ${enhancementType.toUpperCase()} (Score mínimo: ${minScore}/100)
+OBJETIVO DE CALIDAD: ${enhancementType.toUpperCase()} (Score objetivo: ${minScore + 5}+/100, mínimo aceptable: ${minScore}/100)
 
-Como reclutador senior exigente, valida este CV con criterios duros. ¿Pasa el test de reclutador experimentado? Proporciona feedback en formato JSON.`;
+Como consultor senior en optimización de CVs, evalúa este CV con enfoque constructivo. Identifica fortalezas, oportunidades de mejora y proporciona recomendaciones específicas. Tu objetivo es ayudar a que este CV sea competitivo en el mercado actual. Proporciona feedback detallado en formato JSON.`;
 
     return { systemPrompt, userPrompt };
   }

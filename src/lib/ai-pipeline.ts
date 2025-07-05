@@ -17,6 +17,7 @@ import {
   AIAgentId
 } from '@/types/ai-pipeline';
 import { AIPrompts } from './ai-prompts';
+import { ProgressiveImprovementSystem } from './progressive-improvement';
 
 export class AIPipeline {
   private openai: OpenAI;
@@ -43,6 +44,7 @@ export class AIPipeline {
       jobContext?: JobContext;
       userId: string;
       resumeId: string;
+      analysisResult?: any; // Score inicial del análisis
     }
   ): Promise<PipelineResult> {
     const startTime = Date.now();
@@ -56,6 +58,9 @@ export class AIPipeline {
       let analysisResult: any = options.analysisResult || null;
       let expertFeedback: any = null;
       let retryCount = 0;
+      
+      // Obtener score inicial para sistema de mejora progresiva
+      const initialScore = analysisResult?.overallScore || 0;
 
       // Ejecutar cada paso del pipeline
       for (let i = 0; i < config.steps.length; i++) {
@@ -87,10 +92,20 @@ export class AIPipeline {
 
         // Checkpoint de calidad (excepto para análisis standalone)
         if (type !== 'analysis' && agent.id === 'expert-recruiter') {
-          const checkpoint = await this.runCheckpoint(step.output, config.minScore, retryCount, config.maxRetries);
+          const checkpoint = await this.runProgressiveCheckpoint(
+            initialScore,
+            step.output, 
+            type as 'simple' | 'advanced' | 'specialized',
+            retryCount, 
+            config.maxRetries
+          );
           
           if (!checkpoint.passed && checkpoint.shouldRetry) {
-            console.log(`🔄 Checkpoint falló (Score: ${checkpoint.score}/${config.minScore}). Reiniciando pipeline...`);
+            if (checkpoint.improvementType === 'progressive') {
+              console.log(`🔄 Checkpoint falló (Mejora: ${checkpoint.improvementPercentage?.toFixed(1)}%/${checkpoint.minRequiredImprovement?.toFixed(1)}%). Reiniciando pipeline...`);
+            } else {
+              console.log(`🔄 Checkpoint falló (Score: ${checkpoint.score}/${config.minScore}). Reiniciando pipeline...`);
+            }
             retryCount++;
             
             // Reiniciar desde Content Enhancer o Position Enhancer según el tipo
@@ -273,7 +288,7 @@ export class AIPipeline {
     }
   }
 
-  // Sistema de checkpoints automáticos
+  // Sistema de checkpoints automáticos (legacy - mantener para compatibilidad)
   private async runCheckpoint(
     output: any,
     minScore: number,
@@ -290,7 +305,49 @@ export class AIPipeline {
       minRequired: minScore,
       shouldRetry,
       retryCount,
-      maxRetries
+      maxRetries,
+      improvementType: 'absolute'
+    };
+  }
+
+  // Sistema de checkpoints progresivos (nuevo)
+  private async runProgressiveCheckpoint(
+    originalScore: number,
+    output: any,
+    pipelineType: 'simple' | 'advanced' | 'specialized',
+    retryCount: number,
+    maxRetries: number
+  ): Promise<CheckpointResult> {
+    const currentScore = this.extractScoreFromOutput(output);
+    
+    // Usar sistema de mejora progresiva
+    const improvementResult = ProgressiveImprovementSystem.evaluateImprovement(
+      originalScore,
+      currentScore,
+      pipelineType
+    );
+    
+    const shouldRetry = !improvementResult.passed && retryCount < maxRetries;
+    
+    console.log(`📊 Checkpoint Progresivo:`, {
+      scoreInicial: originalScore,
+      scoreActual: currentScore,
+      mejora: `${improvementResult.improvementPercentage.toFixed(1)}%`,
+      requerida: `${improvementResult.adaptedMinImprovement.toFixed(1)}%`,
+      resultado: improvementResult.passed ? '✅ APROBADO' : '❌ RECHAZADO'
+    });
+
+    return {
+      passed: improvementResult.passed,
+      score: currentScore,
+      minRequired: improvementResult.minRequiredImprovement,
+      shouldRetry,
+      retryCount,
+      maxRetries,
+      originalScore,
+      improvementPercentage: improvementResult.improvementPercentage,
+      minRequiredImprovement: improvementResult.adaptedMinImprovement,
+      improvementType: 'progressive'
     };
   }
 

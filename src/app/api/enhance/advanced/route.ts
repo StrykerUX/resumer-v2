@@ -162,6 +162,7 @@ export async function POST(request: NextRequest) {
         userId: session.user.id,
         resumeId: resumeId,
         analysisResult: {
+          overallScore: resume.analysis.overallScore, // Score inicial para mejora progresiva
           improvements: improvements,
           keywords: keywords,
           atsOptimization: atsOptimization,

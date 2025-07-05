@@ -195,7 +195,8 @@ export async function POST(request: NextRequest) {
           improvements: improvements,
           keywords: keywords,
           atsOptimization: atsOptimization,
-          atsScore: resume.analysis.atsScore
+          atsScore: resume.analysis.atsScore,
+          overallScore: resume.analysis.overallScore
         }
       }
     );
