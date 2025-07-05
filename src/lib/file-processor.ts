@@ -39,6 +39,128 @@ export function hasUsefulContent(text: string): boolean {
 }
 
 /**
+ * Limpia y optimiza texto extraído para mejor calidad
+ */
+export function cleanAndOptimizeText(text: string): string {
+  if (!text) return '';
+
+  let cleanedText = text;
+
+  // 1. Remover caracteres corruptos comunes
+  cleanedText = cleanedText.replace(/[^\x20-\x7E\u00A0-\u024F\u1E00-\u1EFF]/g, ' ');
+  
+  // 2. Corregir problemas de encoding comunes
+  cleanedText = cleanedText.replace(/Ã¡/g, 'á');
+  cleanedText = cleanedText.replace(/Ã©/g, 'é');
+  cleanedText = cleanedText.replace(/Ã­/g, 'í');
+  cleanedText = cleanedText.replace(/Ã³/g, 'ó');
+  cleanedText = cleanedText.replace(/Ãº/g, 'ú');
+  cleanedText = cleanedText.replace(/Ã±/g, 'ñ');
+  
+  // 3. Remover texto corrupto específico detectado
+  cleanedText = cleanedText.replace(/TN isco mensa/gi, '');
+  cleanedText = cleanedText.replace(/\b[A-Z]{1,2}\s+[a-z]{1,3}\s+mensa\b/gi, '');
+  
+  // 4. Normalizar espacios en blanco
+  cleanedText = cleanedText.replace(/\s+/g, ' ');
+  cleanedText = cleanedText.replace(/\n\s*\n/g, '\n');
+  
+  // 5. Remover líneas que son muy cortas o sospechosas
+  const lines = cleanedText.split('\n');
+  const filteredLines = lines.filter(line => {
+    const trimmedLine = line.trim();
+    // Mantener líneas que:
+    // - Tienen más de 3 caracteres
+    // - Contienen al menos una vocal
+    // - No son solo números o símbolos
+    return trimmedLine.length > 3 && 
+           /[aeiouAEIOU]/.test(trimmedLine) &&
+           /[a-zA-Z]/.test(trimmedLine);
+  });
+  
+  cleanedText = filteredLines.join('\n');
+  
+  // 6. Trim final
+  cleanedText = cleanedText.trim();
+  
+  return cleanedText;
+}
+
+/**
+ * Evalúa la calidad del texto extraído
+ */
+export function assessTextQuality(text: string): {
+  score: number;
+  issues: string[];
+  confidence: 'high' | 'medium' | 'low';
+} {
+  const issues: string[] = [];
+  let score = 100;
+
+  if (!text || text.trim().length === 0) {
+    return { score: 0, issues: ['Texto vacío'], confidence: 'low' };
+  }
+
+  const wordCount = text.split(/\s+/).length;
+  const charCount = text.length;
+
+  // Evaluar longitud
+  if (wordCount < 50) {
+    issues.push('Texto muy corto');
+    score -= 30;
+  } else if (wordCount < 200) {
+    issues.push('Texto corto');
+    score -= 15;
+  }
+
+  // Evaluar presencia de caracteres corruptos
+  const corruptChars = text.match(/[^\x20-\x7E\u00A0-\u024F\u1E00-\u1EFF]/g);
+  if (corruptChars && corruptChars.length > 0) {
+    issues.push(`${corruptChars.length} caracteres corruptos detectados`);
+    score -= Math.min(50, corruptChars.length * 2);
+  }
+
+  // Evaluar presencia de texto corrupto conocido
+  if (/TN isco mensa/i.test(text)) {
+    issues.push('Texto corrupto específico detectado');
+    score -= 40;
+  }
+
+  // Evaluar estructura de CV
+  const cvKeywords = ['experiencia', 'educacion', 'habilidades', 'contacto', 'email', '@'];
+  const foundKeywords = cvKeywords.filter(keyword => 
+    text.toLowerCase().includes(keyword)
+  );
+  
+  if (foundKeywords.length < 2) {
+    issues.push('Pocas secciones de CV detectadas');
+    score -= 25;
+  }
+
+  // Evaluar ratio caracteres/palabras (detectar texto comprimido o corrupto)
+  const avgCharsPerWord = charCount / wordCount;
+  if (avgCharsPerWord < 3) {
+    issues.push('Palabras muy cortas (posible corrupción)');
+    score -= 20;
+  } else if (avgCharsPerWord > 15) {
+    issues.push('Palabras muy largas (posible corrupción)');
+    score -= 20;
+  }
+
+  // Determinar confianza
+  let confidence: 'high' | 'medium' | 'low';
+  if (score >= 80) confidence = 'high';
+  else if (score >= 60) confidence = 'medium';
+  else confidence = 'low';
+
+  return {
+    score: Math.max(0, score),
+    issues,
+    confidence
+  };
+}
+
+/**
  * Extrae texto de PDF usando detección rápida (intenta usar características simples del PDF)
  */
 export async function extractTextWithQuickMethod(buffer: Buffer, fileName: string): Promise<ProcessedFile> {
@@ -302,22 +424,57 @@ export function validateCVContent(processedFile: ProcessedFile): { valid: boolea
 }
 
 /**
- * Limpia y normaliza el texto extraído
+ * Limpia y normaliza el texto extraído (versión optimizada)
  */
 export function cleanCVText(text: string): string {
-  return text
-    // Remover caracteres especiales y saltos de línea excesivos
-    .replace(/[\r\n]+/g, '\n')
-    .replace(/\s+/g, ' ')
-    .trim()
-    // Remover caracteres no imprimibles (OCR puede generar basura)
-    .replace(/[^\x20-\x7E\u00A0-\u00FF\u0100-\u017F\u0180-\u024F\u1E00-\u1EFF]/g, '')
-    // Normalizar espacios
-    .replace(/\s{2,}/g, ' ')
+  // Usar la nueva función optimizada
+  const cleanedText = cleanAndOptimizeText(text);
+  
+  // Aplicar limpieza adicional específica para CVs
+  return cleanedText
+    // Normalizar bullets y viñetas
+    .replace(/[\u2022\u2023\u25E6\u2043\u2219]/g, '\u2022')
     // Limpiar artefactos comunes de OCR
     .replace(/[|\\/_]+/g, ' ')
-    .replace(/[\u2022\u2023\u25E6\u2043\u2219]/g, '\u2022') // Normalizar bullets
+    // Normalizar espacios finales
+    .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+/**
+ * Función avanzada de limpieza para fallback local robusto
+ */
+export function advancedCleanCVText(text: string): {
+  cleanedText: string;
+  qualityAssessment: {
+    score: number;
+    issues: string[];
+    confidence: 'high' | 'medium' | 'low';
+  };
+} {
+  // Aplicar limpieza optimizada
+  const cleanedText = cleanAndOptimizeText(text);
+  
+  // Evaluar calidad del resultado
+  const qualityAssessment = assessTextQuality(cleanedText);
+  
+  console.log('🧹 Limpieza avanzada de texto:', {
+    caracteres: {
+      antes: text.length,
+      después: cleanedText.length,
+      reducción: `${Math.round((1 - cleanedText.length / text.length) * 100)}%`
+    },
+    calidad: {
+      score: qualityAssessment.score,
+      confianza: qualityAssessment.confidence,
+      problemas: qualityAssessment.issues.length
+    }
+  });
+  
+  return {
+    cleanedText: cleanCVText(cleanedText), // Aplicar limpieza final de CV
+    qualityAssessment
+  };
 }
 
 /**
