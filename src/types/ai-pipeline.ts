@@ -1,4 +1,4 @@
-// Tipos para el sistema de Pipeline de 7 IAs Especializadas
+// Tipos para el sistema de Pipeline Veraz de 6 IAs + Fact Checker
 
 export interface AIAgent {
   id: string;
@@ -7,6 +7,7 @@ export interface AIAgent {
   role: string;
   function: string;
   estimatedTime: number; // en segundos
+  conservative: boolean; // Nueva propiedad para IAs ultra-conservadoras
 }
 
 export interface PipelineStep {
@@ -31,6 +32,21 @@ export interface PipelineConfig {
   fallbackMinScore: number; // Score mínimo absoluto como respaldo
 }
 
+// Nuevo sistema de retroalimentación estructurada por secciones
+export interface SectionFeedback {
+  problemas: string[];
+  sugerencias: string[];
+  score: number;
+}
+
+export interface StructuredFeedback {
+  resumenProfesional: SectionFeedback;
+  experienciaLaboral: SectionFeedback;
+  educacion: SectionFeedback;
+  habilidades: SectionFeedback;
+  otros: SectionFeedback;
+}
+
 export interface CVAnalysisResult {
   overallScore: number;
   categoryScores: {
@@ -46,6 +62,23 @@ export interface CVAnalysisResult {
   keywords: string[];
   atsOptimization: string[];
   detailedFeedback: string;
+  // Nuevo sistema de retroalimentación estructurada
+  structuredFeedback: StructuredFeedback;
+}
+
+// Resultado de extracción de texto plano
+export interface TextExtractionResult {
+  originalText: string;
+  extractedContent: {
+    informacionContacto: string;
+    resumenProfesional: string;
+    experienciaLaboral: string;
+    educacion: string;
+    habilidades: string;
+    otros: string;
+  };
+  wordCount: number;
+  sectionsFound: string[];
 }
 
 export interface EnhancementResult {
@@ -57,6 +90,19 @@ export interface EnhancementResult {
     improvement: number;
   };
   changesExplanation: string;
+  // Nuevo campo para validación de veracidad
+  factCheckResult: FactCheckResult;
+}
+
+// Resultado del Fact Checker
+export interface FactCheckResult {
+  isVerified: boolean;
+  originalText: string;
+  enhancedText: string;
+  inventedInfo: string[];
+  changesDetected: string[];
+  confidenceScore: number;
+  flaggedSections: string[];
 }
 
 export interface PipelineResult {
@@ -121,71 +167,92 @@ export interface PipelineProgress {
   statusMessage: string;
 }
 
-// Constantes para las 7 IAs especializadas
+// Constantes para las 6 IAs especializadas + Fact Checker
 export const AI_AGENTS: Record<string, AIAgent> = {
-  ANALYST: {
-    id: 'analyst',
-    name: 'Analista Experto',
-    description: 'El Auditor - Detective de CVs que hace diagnóstico completo',
-    role: 'Diagnóstico completo sin hacer cambios',
-    function: 'Score inicial + lista categorizada de problemas',
-    estimatedTime: 90
+  // Pre-Pipeline
+  EXTRACTOR: {
+    id: 'extractor',
+    name: 'Text Extractor',
+    description: 'Extractor de texto puro sin modificaciones',
+    role: 'Extracción de texto sin interpretar',
+    function: 'Texto plano sin modificaciones',
+    estimatedTime: 30,
+    conservative: true
   },
-  CONTENT_ENHANCER: {
-    id: 'content-enhancer',
-    name: 'Content Enhancer',
-    description: 'Editor profesional que reescribe y reorganiza contenido',
-    role: 'Reescribir y reorganizar contenido',
-    function: 'CV mejorado con mejor estructura y redacción',
-    estimatedTime: 120
+  ANALYZER: {
+    id: 'analyzer',
+    name: 'Analyzer Crítico',
+    description: 'El Destructor - Análisis crítico estructurado por secciones',
+    role: 'Análisis crítico destructivo por secciones',
+    function: 'Retroalimentación estructurada por secciones',
+    estimatedTime: 90,
+    conservative: true
   },
-  INDUSTRY_RECRUITER: {
-    id: 'industry-recruiter',
-    name: 'Industry Recruiter',
-    description: 'Reclutador especializado por sector específico',
-    role: 'Optimización específica de industria',
-    function: 'CV optimizado para sector específico',
-    estimatedTime: 100
+  
+  // Pipeline IAs
+  A1_CONTENT_IMPROVER: {
+    id: 'a1-content-improver',
+    name: 'A1 Content Improver',
+    description: 'El Conservador - Mejora sin inventar información',
+    role: 'Mejora conservadora manteniendo veracidad',
+    function: 'CV mejorado sin información inventada',
+    estimatedTime: 120,
+    conservative: true
   },
-  POSITION_ENHANCER: {
-    id: 'position-enhancer',
-    name: 'Position Enhancer',
-    description: 'Adaptador para puesto específico',
-    role: 'Alinear CV a job posting específico',
-    function: 'CV hyper-targeted sin sonar artificial',
-    estimatedTime: 110
+  A2_INDUSTRY_JUDGE: {
+    id: 'a2-industry-judge',
+    name: 'A2 Industry Judge',
+    description: 'El Especialista Sectorial - Evaluación por industria',
+    role: 'Evaluación específica por industria',
+    function: 'Retroalimentación sectorial específica',
+    estimatedTime: 80,
+    conservative: true
   },
-  EXPERT_RECRUITER: {
-    id: 'expert-recruiter',
-    name: 'Expert Senior Recruiter',
-    description: 'Reclutador exigente con criterios duros',
-    role: 'Control de calidad con criterios duros',
-    function: 'Feedback detallado + red flags identificadas',
-    estimatedTime: 80
+  A3_JOB_MATCHER: {
+    id: 'a3-job-matcher',
+    name: 'A3 Job Matcher',
+    description: 'El Alineador - Propone cambios específicos al puesto',
+    role: 'Alineación específica al puesto objetivo',
+    function: 'Cambios específicos para el puesto',
+    estimatedTime: 100,
+    conservative: true
   },
-  HEAD_HUNTER: {
-    id: 'head-hunter',
-    name: 'Head Hunter Enhancer',
-    description: 'Consultor ejecutivo de CVs nivel premium',
-    role: 'Refinamiento a nivel C-suite',
-    function: 'CV refinado a nivel premium ejecutivo',
-    estimatedTime: 130
+  A4_FINAL_ENHANCER: {
+    id: 'a4-final-enhancer',
+    name: 'A4 Final Enhancer',
+    description: 'El Pulidor - Integración final sin inventar',
+    role: 'Integración final de todas las mejoras',
+    function: 'CV final integrado y pulido',
+    estimatedTime: 110,
+    conservative: true
   },
-  HUMANIZER: {
-    id: 'humanizer',
-    name: 'Humanizer & Format Expert',
-    description: 'Editor final y especialista en formato',
-    role: 'Control de calidad + formato perfecto',
-    function: 'PDF final listo para enviar',
-    estimatedTime: 70
+  A5_HTML_FORMATTER: {
+    id: 'a5-html-formatter',
+    name: 'A5 HTML Formatter',
+    description: 'El Presentador - Solo formato sin contenido',
+    role: 'Formato HTML sin modificar contenido',
+    function: 'CV con formato HTML final',
+    estimatedTime: 60,
+    conservative: true
+  },
+  
+  // Fact Checker
+  FACT_CHECKER: {
+    id: 'fact-checker',
+    name: 'Fact Checker',
+    description: 'El Guardián - Validación de veracidad',
+    role: 'Validación contra texto original',
+    function: 'Verificación de veracidad completa',
+    estimatedTime: 70,
+    conservative: true
   }
 };
 
-// Configuraciones de pipeline por tipo
+// Configuraciones de pipeline por tipo - Nueva Arquitectura Veraz
 export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
   analysis: {
     type: 'analysis',
-    steps: [AI_AGENTS.ANALYST],
+    steps: [AI_AGENTS.EXTRACTOR, AI_AGENTS.ANALYZER],
     minScore: 0,
     maxRetries: 1,
     cost: 10,
@@ -194,7 +261,13 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
   },
   simple: {
     type: 'simple',
-    steps: [AI_AGENTS.CONTENT_ENHANCER, AI_AGENTS.HUMANIZER],
+    steps: [
+      AI_AGENTS.EXTRACTOR,
+      AI_AGENTS.ANALYZER,
+      AI_AGENTS.A1_CONTENT_IMPROVER,
+      AI_AGENTS.FACT_CHECKER,
+      AI_AGENTS.A5_HTML_FORMATTER
+    ],
     minScore: 70, // Mantener para compatibilidad
     maxRetries: 2,
     cost: 20,
@@ -204,11 +277,13 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
   advanced: {
     type: 'advanced',
     steps: [
-      AI_AGENTS.CONTENT_ENHANCER,
-      AI_AGENTS.INDUSTRY_RECRUITER,
-      AI_AGENTS.EXPERT_RECRUITER,
-      AI_AGENTS.HEAD_HUNTER,
-      AI_AGENTS.HUMANIZER
+      AI_AGENTS.EXTRACTOR,
+      AI_AGENTS.ANALYZER,
+      AI_AGENTS.A1_CONTENT_IMPROVER,
+      AI_AGENTS.A2_INDUSTRY_JUDGE,
+      AI_AGENTS.A4_FINAL_ENHANCER,
+      AI_AGENTS.FACT_CHECKER,
+      AI_AGENTS.A5_HTML_FORMATTER
     ],
     minScore: 75, // Mantener para compatibilidad
     maxRetries: 2,
@@ -219,12 +294,14 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
   specialized: {
     type: 'specialized',
     steps: [
-      AI_AGENTS.CONTENT_ENHANCER,
-      AI_AGENTS.POSITION_ENHANCER,
-      AI_AGENTS.INDUSTRY_RECRUITER,
-      AI_AGENTS.EXPERT_RECRUITER,
-      AI_AGENTS.HEAD_HUNTER,
-      AI_AGENTS.HUMANIZER
+      AI_AGENTS.EXTRACTOR,
+      AI_AGENTS.ANALYZER,
+      AI_AGENTS.A1_CONTENT_IMPROVER,
+      AI_AGENTS.A2_INDUSTRY_JUDGE,
+      AI_AGENTS.A3_JOB_MATCHER,
+      AI_AGENTS.A4_FINAL_ENHANCER,
+      AI_AGENTS.FACT_CHECKER,
+      AI_AGENTS.A5_HTML_FORMATTER
     ],
     minScore: 80, // Mantener para compatibilidad
     maxRetries: 2,
@@ -234,49 +311,55 @@ export const PIPELINE_CONFIGS: Record<string, PipelineConfig> = {
   }
 };
 
-// Frases humanizadas para cada IA
+// Frases humanizadas para cada IA - Nueva Arquitectura Veraz
 export const AI_STATUS_MESSAGES: Record<string, string[]> = {
-  analyst: [
-    "🔍 Nuestro auditor está examinando cada línea de tu CV...",
-    "📊 Comparando con estándares de industria...",
-    "🎯 Identificando oportunidades de mejora...",
-    "📋 Generando diagnóstico completo..."
+  extractor: [
+    "🔍 Extrayendo texto original sin modificaciones...",
+    "📝 Capturando información exacta del CV...",
+    "🎯 Preservando contenido original intacto...",
+    "📋 Organizando texto por secciones..."
   ],
-  'content-enhancer': [
-    "✍️ El editor profesional está reescribiendo tu experiencia...",
-    "📝 Mejorando estructura y contenido...",
-    "🔄 Reorganizando secciones para mayor impacto...",
-    "💪 Potenciando el lenguaje de tus logros..."
+  analyzer: [
+    "🔥 El Destructor está siendo despiadado con tu CV...",
+    "⚡ Analizando cada sección con crítica feroz...",
+    "📊 Identificando problemas sin piedad...",
+    "🎯 Generando retroalimentación estructurada..."
   ],
-  'industry-recruiter': [
-    "🏭 El especialista en tu industria está optimizando keywords...",
-    "🎯 Aplicando expertise sectorial específico...",
-    "📈 Alineando con estándares de tu sector...",
-    "🔍 Integrando terminología especializada..."
+  'a1-content-improver': [
+    "✍️ El Conservador está mejorando tu contenido sin inventar...",
+    "🔒 Manteniendo veracidad mientras optimiza...",
+    "📝 Reescribiendo con base en información real...",
+    "💪 Potenciando lo que ya tienes..."
   ],
-  'position-enhancer': [
-    "🎯 Alineando tu perfil al puesto de tus sueños...",
-    "📋 Analizando requirements del trabajo objetivo...",
-    "🔄 Priorizando experiencia más relevante...",
-    "⚡ Personalizando para match perfecto..."
+  'a2-industry-judge': [
+    "🏭 El Especialista Sectorial está evaluando por industria...",
+    "📈 Aplicando criterios específicos del sector...",
+    "🎯 Generando retroalimentación sectorial...",
+    "🔍 Identificando gaps específicos de la industria..."
   ],
-  'expert-recruiter': [
-    "👔 El recruiter experto está haciendo la validación final...",
-    "🔍 Verificando compatibilidad con sistemas ATS...",
-    "⚠️ Identificando y eliminando red flags...",
-    "✅ Aplicando criterios de reclutador experimentado..."
+  'a3-job-matcher': [
+    "🎯 El Alineador está proponiendo cambios específicos...",
+    "📋 Analizando requirements del puesto objetivo...",
+    "🔄 Sugiriendo ajustes precisos para el rol...",
+    "⚡ Creando propuesta de personalización..."
   ],
-  'head-hunter': [
-    "💎 Refinando tu CV a nivel ejecutivo...",
-    "🏆 Aplicando lenguaje de alto impacto empresarial...",
-    "👑 Optimizando para roles senior y ejecutivos...",
-    "⭐ Elevando a estándares C-suite..."
+  'a4-final-enhancer': [
+    "💎 El Pulidor está integrando todas las mejoras...",
+    "🔗 Combinando feedback sin inventar información...",
+    "✨ Aplicando mejoras finales conservadoras...",
+    "🎯 Generando versión final optimizada..."
   ],
-  humanizer: [
-    "🎨 Aplicando el formato perfecto y verificando compatibilidad ATS...",
-    "📄 Generando PDF final listo para enviar...",
-    "✅ Realizando verificaciones finales de calidad...",
-    "🔗 Asegurando que todos los enlaces funcionen correctamente..."
+  'a5-html-formatter': [
+    "🎨 El Presentador está aplicando formato HTML...",
+    "📄 Generando estructura visual perfecta...",
+    "✅ Optimizando para compatibilidad ATS...",
+    "🔗 Finalizando presentación profesional..."
+  ],
+  'fact-checker': [
+    "🛡️ El Guardián está validando veracidad...",
+    "🔍 Comparando con texto original línea por línea...",
+    "⚠️ Detectando cualquier información inventada...",
+    "✅ Certificando autenticidad del contenido..."
   ]
 };
 

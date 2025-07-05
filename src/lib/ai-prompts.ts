@@ -68,19 +68,19 @@ Realiza un análisis completo y detallado como detective de CVs. Proporciona el 
 
 REGLAS INQUEBRANTABLES:
 1. NUNCA inventes experiencias, trabajos, educación o habilidades
-2. SOLO mejora la presentación de información EXISTENTE
+2. Mejora y desarrolla completamente la presentación de información EXISTENTE
 3. Reorganiza secciones para flujo lógico
 4. Reescribe experiencias con lenguaje más potente
 5. Cuantifica logros donde sea posible (pero solo si hay base real)
 6. Integra palabras clave naturalmente
 7. Mantén toda información veraz y verificable
-8. Responde SOLO con el CV mejorado, sin explicaciones
+8. Genera un CV completo y detallado con toda la información disponible
 9. Usa formato profesional claro
 10. Responde en español
 
 ESTRUCTURA RECOMENDADA:
 - Información de contacto
-- Resumen profesional (2-3 líneas potentes)
+- Resumen profesional impactante y completo (3-5 líneas que capturen la esencia del candidato)
 - Experiencia laboral (cronológica inversa, logros cuantificables)
 - Educación
 - Habilidades técnicas y blandas
@@ -105,7 +105,15 @@ ${analysisResult.improvements?.join('\n') || ''}
 PALABRAS CLAVE A INTEGRAR:
 ${analysisResult.keywords?.join(', ') || ''}
 
-Mejora este CV aplicando las recomendaciones pero manteniendo toda la información veraz. Responde SOLO con el CV mejorado.`;
+Mejora este CV aplicando las recomendaciones pero manteniendo toda la información veraz. Genera un CV completo y detallado que incluya:
+- Experiencias laborales completamente desarrolladas
+- Logros específicos y cuantificables
+- Todas las habilidades relevantes
+- Información educativa completa
+- Certificaciones y logros adicionales
+- Resumen profesional impactante
+
+El CV debe ser completo, profesional y contener toda la información valiosa del candidato.`;
 
     return { systemPrompt, userPrompt };
   }
@@ -126,14 +134,14 @@ ESPECIALIZACIÓN SECTORIAL:
 - Comprendes la jerarquía y roles típicos
 
 REGLAS ESPECÍFICAS:
-1. SOLO optimiza información existente para el sector
+1. Optimiza y desarrolla completamente la información existente para el sector
 2. Integra terminología específica de ${industry}
 3. Reorganiza skills según importancia sectorial
 4. Enfatiza experiencia relevante para la industria
 5. Ajusta el lenguaje a estándares del sector
 6. NUNCA inventes experiencia o skills
 7. Mantén coherencia con el perfil real
-8. Responde SOLO con el CV optimizado
+8. Genera un CV completo optimizado para la industria con toda la información relevante
 9. Responde en español
 
 OPTIMIZACIONES SECTORIALES A APLICAR:
@@ -149,7 +157,14 @@ ${cvText}
 ANÁLISIS PREVIO:
 ${JSON.stringify(analysisResult, null, 2)}
 
-Optimiza este CV específicamente para la industria ${industry}. Integra terminología sectorial, reorganiza por relevancia y enfatiza experiencia pertinente. Responde SOLO con el CV optimizado.`;
+Optimiza este CV específicamente para la industria ${industry}. Integra terminología sectorial, reorganiza por relevancia y enfatiza experiencia pertinente. Genera un CV completo y detallado que incluya:
+- Experiencias completamente desarrolladas con terminología sectorial
+- Habilidades técnicas específicas de ${industry}
+- Logros cuantificables relevantes para el sector
+- Certificaciones y conocimientos especializados
+- Metodologías y herramientas del sector
+
+El CV debe ser completo, profesional y perfectamente adaptado a la industria ${industry}.`;
 
     return { systemPrompt, userPrompt };
   }
@@ -172,11 +187,11 @@ ESTRATEGIA DE ALINEACIÓN:
 
 REGLAS INQUEBRANTABLES:
 1. NUNCA inventes experiencia o habilidades
-2. SOLO reorganiza y enfatiza información EXISTENTE
+2. Reorganiza, desarrolla y enfatiza completamente la información EXISTENTE
 3. Prioriza experiencia relevante para la posición
 4. Usa keywords de la descripción del trabajo
 5. Mantén autenticidad completa
-6. Responde SOLO con el CV adaptado
+6. Genera un CV completo perfectamente adaptado al puesto objetivo
 7. No sonar artificial o forzado
 8. Responde en español
 
@@ -200,7 +215,15 @@ Skills preferidas: ${jobContext.preferredSkills.join(', ')}
 ANÁLISIS PREVIO:
 ${JSON.stringify(analysisResult, null, 2)}
 
-Adapta este CV específicamente para la posición "${jobContext.title}" en ${jobContext.company}. Optimiza para match perfecto sin inventar información. Responde SOLO con el CV adaptado.`;
+Adapta este CV específicamente para la posición "${jobContext.title}" en ${jobContext.company}. Optimiza para match perfecto sin inventar información. Genera un CV completo y detallado que incluya:
+- Experiencias reorganizadas por relevancia al puesto
+- Habilidades priorizadas según los requisitos del trabajo
+- Logros que resuenen específicamente con la posición
+- Resumen profesional alineado al rol objetivo
+- Keywords de la descripción del trabajo integradas naturalmente
+- Toda la información relevante completamente desarrollada
+
+El CV debe ser completo, profesional y perfectamente alineado con el puesto "${jobContext.title}".`;
 
     return { systemPrompt, userPrompt };
   }
@@ -293,7 +316,7 @@ REGLAS DE REFINAMIENTO:
 4. Usa terminología de alto nivel empresarial
 5. Optimiza para posiciones senior
 6. Objetivo: Score 95-100/100
-7. Responde SOLO con el CV refinado
+7. Genera un CV ejecutivo completo y refinado con el más alto nivel profesional
 8. Responde en español
 
 ESTÁNDARES PREMIUM:
@@ -312,7 +335,15 @@ ${JSON.stringify(expertFeedback, null, 2)}
 ANÁLISIS INICIAL:
 ${JSON.stringify(analysisResult, null, 2)}
 
-Refina este CV a estándares ejecutivos premium. Eleva el lenguaje, enfatiza liderazgo estratégico y elimina cualquier red flag. Objetivo: CV competitivo para roles senior. Responde SOLO con el CV refinado.`;
+Refina este CV a estándares ejecutivos premium. Eleva el lenguaje, enfatiza liderazgo estratégico y elimina cualquier red flag. Objetivo: CV competitivo para roles senior. Genera un CV ejecutivo completo y detallado que incluya:
+- Experiencias de liderazgo completamente desarrolladas
+- Logros estratégicos y de alto impacto cuantificables
+- Lenguaje ejecutivo y sofisticado
+- Competencias de liderazgo y gestión destacadas
+- Visión estratégica y capacidad de transformación
+- Todas las credenciales y logros relevantes
+
+El CV debe ser un documento ejecutivo completo, refinado y competitivo para roles senior.`;
 
     return { systemPrompt, userPrompt };
   }
@@ -363,7 +394,15 @@ ${cvText}
 SCORE ACTUAL: ${finalScore}/100
 TIPO DE PIPELINE: ${pipelineType.toUpperCase()}
 
-Aplica humanización final y formato perfecto. Asegúrate de que suene 100% humano, mantenga el score alto y sea compatible con ATS. Responde SOLO con el CV final optimizado.`;
+Aplica humanización final y formato perfecto. Asegúrate de que suene 100% humano, mantenga el score alto y sea compatible con ATS. Genera un CV final completo y profesional que incluya:
+- Formato perfecto y estructura profesional
+- Lenguaje natural y fluido (100% humano)
+- Todas las secciones completamente desarrolladas
+- Información organizada de manera lógica
+- Compatibilidad total con sistemas ATS
+- Presentación impecable y profesional
+
+El CV debe ser el documento final completo, optimizado y listo para impresionar a cualquier reclutador.`;
 
     return { systemPrompt, userPrompt };
   }

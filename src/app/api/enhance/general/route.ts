@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { createAIPipeline } from '@/lib/ai-pipeline';
+import { createAIPipelineVeraz } from '@/lib/ai-pipeline-veraz';
+import { formatCVToHTML } from '@/lib/cv-formatter';
 
 const GENERAL_ENHANCEMENT_COST = 15; // Costo en créditos para mejora simple
 
@@ -151,8 +152,8 @@ export async function POST(request: NextRequest) {
       careerObjective: analysisData.userAnswers?.careerObjective
     };
 
-    // Ejecutar pipeline simple (Content Enhancer + Humanizer)
-    const pipeline = createAIPipeline();
+    // Ejecutar pipeline VERAZ simple (Extractor + Analyzer + A1 + Fact Checker + A5)
+    const pipeline = createAIPipelineVeraz();
     
     const pipelineResult = await pipeline.executePipeline(
       'simple',
@@ -160,14 +161,7 @@ export async function POST(request: NextRequest) {
       {
         userProfile,
         userId: session.user.id,
-        resumeId: resumeId,
-        analysisResult: {
-          improvements: improvements,
-          keywords: keywords,
-          atsOptimization: atsOptimization,
-          atsScore: resume.analysis.atsScore,
-          overallScore: resume.analysis.overallScore
-        }
+        resumeId: resumeId
       }
     );
 
@@ -176,7 +170,10 @@ export async function POST(request: NextRequest) {
     }
 
     const enhancementResult = pipelineResult.result as any;
-    const enhancedContent = enhancementResult.enhancedContent;
+    const enhancedContentMarkdown = enhancementResult.enhancedContent;
+    
+    // Formatear CV de Markdown a HTML profesional
+    const enhancedContentHTML = formatCVToHTML(enhancedContentMarkdown);
 
     // Actualizar enhancement con el contenido mejorado
     const updatedEnhancement = await prisma.enhancement.update({
@@ -185,7 +182,8 @@ export async function POST(request: NextRequest) {
         status: 'completed',
         enhancedContent: {
           originalText: originalText,
-          enhancedText: enhancedContent,
+          enhancedText: enhancedContentHTML,
+          enhancedMarkdown: enhancedContentMarkdown,
           analysisData: {
             improvements: improvements,
             keywords: keywords,
@@ -228,7 +226,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       enhancementId: updatedEnhancement.id,
-      enhancedContent: enhancedContent,
+      enhancedContent: enhancedContentHTML,
+      enhancedMarkdown: enhancedContentMarkdown,
       creditsUsed: GENERAL_ENHANCEMENT_COST,
       remainingCredits: user.credits - GENERAL_ENHANCEMENT_COST,
       enhancement: updatedEnhancement,

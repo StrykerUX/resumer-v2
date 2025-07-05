@@ -243,12 +243,14 @@ export default function EnhancementsList({
                       Ver vista previa
                     </summary>
                     <div className="mt-2 p-3 bg-gray-50 rounded text-sm max-h-32 overflow-y-auto">
-                      <pre className="whitespace-pre-wrap font-mono text-xs">
-                        {typeof enhancement.enhancedContent === 'string' 
-                          ? enhancement.enhancedContent.substring(0, 300) + '...'
-                          : enhancement.enhancedContent.enhancedText?.substring(0, 300) + '...' || 'Vista previa no disponible'
-                        }
-                      </pre>
+                      <div 
+                        className="whitespace-normal text-xs"
+                        dangerouslySetInnerHTML={{ 
+                          __html: typeof enhancement.enhancedContent === 'string' 
+                            ? enhancement.enhancedContent.substring(0, 500) + '...'
+                            : enhancement.enhancedContent.enhancedText?.substring(0, 500) + '...' || 'Vista previa no disponible'
+                        }}
+                      />
                     </div>
                   </details>
                 </div>

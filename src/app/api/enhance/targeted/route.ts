@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { createAIPipeline } from '@/lib/ai-pipeline';
+import { createAIPipelineVeraz } from '@/lib/ai-pipeline-veraz';
+import { formatCVToHTML } from '@/lib/cv-formatter';
 
 const TARGETED_ENHANCEMENT_COST = 25; // Costo en créditos para mejora especializada
 
@@ -180,8 +181,8 @@ export async function POST(request: NextRequest) {
       keywordDensity: {}
     };
 
-    // Ejecutar pipeline especializado (Content Enhancer + Position Enhancer + Industry Recruiter + Expert Recruiter + Head Hunter + Humanizer)
-    const pipeline = createAIPipeline();
+    // Ejecutar pipeline VERAZ especializado (Extractor + Analyzer + A1 + A2 + A3 + A4 + Fact Checker + A5)
+    const pipeline = createAIPipelineVeraz();
     
     const pipelineResult = await pipeline.executePipeline(
       'specialized',
@@ -190,14 +191,7 @@ export async function POST(request: NextRequest) {
         userProfile,
         jobContext,
         userId: session.user.id,
-        resumeId: resumeId,
-        analysisResult: {
-          improvements: improvements,
-          keywords: keywords,
-          atsOptimization: atsOptimization,
-          atsScore: resume.analysis.atsScore,
-          overallScore: resume.analysis.overallScore
-        }
+        resumeId: resumeId
       }
     );
 
@@ -206,7 +200,10 @@ export async function POST(request: NextRequest) {
     }
 
     const enhancementResult = pipelineResult.result as any;
-    const enhancedContent = enhancementResult.enhancedContent;
+    const enhancedContentMarkdown = enhancementResult.enhancedContent;
+    
+    // Formatear CV de Markdown a HTML profesional
+    const enhancedContentHTML = formatCVToHTML(enhancedContentMarkdown);
 
     // Actualizar enhancement con el contenido mejorado
     const updatedEnhancement = await prisma.enhancement.update({
@@ -215,7 +212,8 @@ export async function POST(request: NextRequest) {
         status: 'completed',
         enhancedContent: {
           originalText: originalText,
-          enhancedText: enhancedContent,
+          enhancedText: enhancedContentHTML,
+          enhancedMarkdown: enhancedContentMarkdown,
           jobInfo: jobInfo,
           analysisData: {
             improvements: improvements,
@@ -259,7 +257,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       enhancementId: updatedEnhancement.id,
-      enhancedContent: enhancedContent,
+      enhancedContent: enhancedContentHTML,
+      enhancedMarkdown: enhancedContentMarkdown,
       jobInfo: jobInfo,
       creditsUsed: TARGETED_ENHANCEMENT_COST,
       remainingCredits: user.credits - TARGETED_ENHANCEMENT_COST,

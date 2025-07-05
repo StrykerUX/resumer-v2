@@ -599,9 +599,10 @@ function ImprovePageContent() {
               </CardHeader>
               <CardContent>
                 <div className="bg-[#F7F7F5] p-6 rounded-xl max-h-96 overflow-y-auto">
-                  <pre className="font-space-grotesk whitespace-pre-wrap text-sm">
-                    {enhancement.enhancedContent}
-                  </pre>
+                  <div 
+                    className="font-space-grotesk text-sm"
+                    dangerouslySetInnerHTML={{ __html: enhancement.enhancedContent }}
+                  />
                 </div>
               </CardContent>
             </Card>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { createAIPipeline } from '@/lib/ai-pipeline';
+import { createAIPipelineVeraz } from '@/lib/ai-pipeline-veraz';
 import { validateCVContent, cleanCVText, getProcessingInfo } from '@/lib/file-processor';
 
 const ANALYSIS_COST = 10; // Costo en créditos para análisis
@@ -141,9 +141,9 @@ export async function POST(request: NextRequest) {
       careerObjective: parsedAnswers.careerObjective
     };
 
-    // Ejecutar pipeline de análisis con IA especializada
-    console.log('🧠 Ejecutando pipeline de análisis con IA experta...');
-    const pipeline = createAIPipeline();
+    // Ejecutar pipeline VERAZ de análisis con IA ultra-conservadora
+    console.log('🧠 Ejecutando pipeline VERAZ de análisis con IA ultra-conservadora...');
+    const pipeline = createAIPipelineVeraz();
     
     const pipelineResult = await pipeline.executePipeline(
       'analysis',

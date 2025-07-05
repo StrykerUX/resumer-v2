@@ -246,7 +246,7 @@ export class AIPipeline {
       const response = await this.openai.chat.completions.create({
         model: 'gpt-4o-mini',
         temperature: agent.id === 'analyst' || agent.id === 'expert-recruiter' ? 0.3 : 0.5,
-        max_tokens: agent.id === 'analyst' || agent.id === 'expert-recruiter' ? 2500 : 3500,
+        max_tokens: 8000,
         messages: [
           { role: 'system', content: prompt.systemPrompt },
           { role: 'user', content: prompt.userPrompt }
