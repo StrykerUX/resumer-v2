@@ -3,7 +3,7 @@ import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { createAIPipeline } from '@/lib/ai-pipeline';
-import { CVProcessor, validateCVContent, cleanCVText, getProcessingInfo } from '@/lib/file-processor';
+import { validateCVContent, cleanCVText, getProcessingInfo } from '@/lib/file-processor';
 
 const ANALYSIS_COST = 10; // Costo en créditos para análisis
 
@@ -75,21 +75,47 @@ export async function POST(request: NextRequest) {
     const fileBuffer = Buffer.from(await fileResponse.arrayBuffer());
     console.log('✅ Archivo descargado, tamaño:', fileBuffer.length, 'bytes');
 
-    // Procesar el archivo usando el nuevo sistema híbrido
-    const cvProcessor = new CVProcessor();
-    const processedFile = await cvProcessor.processCV(fileBuffer, resume.originalName, resume.mimeType);
-    
-    // Mostrar información del método de procesamiento usado
-    console.log('📊', getProcessingInfo(processedFile));
+    console.log('🚀 Iniciando extracción híbrida OpenAI Vision + Local...');
 
-    // Validar contenido
-    const validation = validateCVContent(processedFile);
+    // Usar el extractor híbrido OpenAI Vision + Local (Plan D)
+    const { OpenAIVisionExtractor } = await import('@/lib/openai-vision-extractor');
+    const extractionResult = await OpenAIVisionExtractor.extractTextFromFile(
+      fileBuffer, 
+      resume.originalName, 
+      resume.mimeType, 
+      'hybrid'
+    );
+
+    if (!extractionResult.success) {
+      throw new Error('No se pudo extraer texto del archivo con ningún método');
+    }
+
+    const cleanedText = extractionResult.text;
+    console.log(`✅ Extracción híbrida exitosa en análisis:`, {
+      método: extractionResult.method,
+      confianza: extractionResult.confidence,
+      caracteres: cleanedText.length,
+      palabras: extractionResult.wordCount,
+      tiempo: extractionResult.metadata.processingTime + 'ms'
+    });
+
+    // Validar contenido extraído
+    const mockProcessedFile = {
+      text: cleanedText,
+      metadata: {
+        method: extractionResult.method,
+        confidence: extractionResult.confidence,
+        wordCount: extractionResult.wordCount,
+        processingTime: extractionResult.metadata.processingTime,
+        originalSize: extractionResult.metadata.originalSize,
+        extractedLength: extractionResult.metadata.extractedLength
+      }
+    };
+
+    const validation = validateCVContent(mockProcessedFile);
     if (!validation.valid) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
-
-    // Limpiar texto
-    const cleanedText = cleanCVText(processedFile.text);
 
     // Parsear respuestas del usuario si existen
     let parsedAnswers: Record<string, string> = {};
@@ -149,11 +175,13 @@ export async function POST(request: NextRequest) {
           aiAnalysis: {
             content: analysisResult.detailedFeedback || 'Análisis completado',
             processedText: cleanedText,
-            metadata: processedFile.metadata,
+            metadata: mockProcessedFile.metadata,
             userAnswers: parsedAnswers,
             timestamp: new Date().toISOString(),
             pipelineResult: pipelineResult,
-            categoryScores: analysisResult.categoryScores || {}
+            categoryScores: analysisResult.categoryScores || {},
+            extractionMethod: extractionResult.method,
+            extractionConfidence: extractionResult.confidence
           },
           suggestions: {
             keywords: analysisResult.keywords || [],
@@ -171,11 +199,13 @@ export async function POST(request: NextRequest) {
           aiAnalysis: {
             content: analysisResult.detailedFeedback || 'Análisis completado',
             processedText: cleanedText,
-            metadata: processedFile.metadata,
+            metadata: mockProcessedFile.metadata,
             userAnswers: parsedAnswers,
             timestamp: new Date().toISOString(),
             pipelineResult: pipelineResult,
-            categoryScores: analysisResult.categoryScores || {}
+            categoryScores: analysisResult.categoryScores || {},
+            extractionMethod: extractionResult.method,
+            extractionConfidence: extractionResult.confidence
           },
           suggestions: {
             keywords: analysisResult.keywords || [],
@@ -232,7 +262,12 @@ export async function POST(request: NextRequest) {
       },
       // Datos adicionales para el frontend
       processedText: cleanedText.substring(0, 500) + '...', // Preview del texto
-      wordCount: processedFile.metadata.wordCount
+      wordCount: extractionResult.wordCount,
+      extractionInfo: {
+        method: extractionResult.method,
+        confidence: extractionResult.confidence,
+        processingTime: extractionResult.metadata.processingTime
+      }
     });
 
   } catch (error) {
