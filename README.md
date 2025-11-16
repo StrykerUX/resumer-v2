@@ -233,11 +233,13 @@ resumer-v2/
 - **🎯 PREVIEW 5**: Sistema multi-modal funcionando al 100% ✅
 
 **Días 18-21: Flujos de Mejora Completos**
-- [ ] Mejora General (10 créditos) funcional
-- [ ] Mejora Específica (15 créditos) funcional
-- [ ] Preview del CV mejorado
-- [ ] Validación antes de procesamiento
-- **🎯 PREVIEW 6**: Flujo end-to-end completo funcionando
+- [x] Mejora General (10 créditos) funcional
+- [x] Mejora Específica (15 créditos) funcional
+- [x] Preview del CV mejorado
+- [x] Validación de créditos antes de procesamiento
+- [x] UI completa para selección de tipo de mejora
+- [x] Página de visualización de enhancements guardados
+- **🎯 PREVIEW 6**: Flujo end-to-end completo funcionando ✅
 
 ---
 
@@ -298,11 +300,13 @@ resumer-v2/
 - **Resultados detallados**: Puntuación, fortalezas, áreas de mejora, ATS score
 - **Sistema end-to-end completo**: Upload → Procesamiento → IA → Resultados ✅
 
-### Después del Día 21:
+### ✅ Después del Día 21 (COMPLETADO):
 **Podrás probar:**
-- Proceso completo: Mejora General (gastar 10 créditos)
-- Proceso completo: Mejora Específica con job posting
-- Ver preview detallado antes de confirmar descarga
+- **Proceso completo: Mejora General** - Selecciona tipo, confirma y recibe CV optimizado
+- **Proceso completo: Mejora Específica** - Pega job description y obtén CV personalizado
+- **Ver preview detallado** del CV mejorado con opción de descarga
+- **Sistema de validación de créditos** funcionando
+- **Flujo end-to-end**: Análisis → Selección de mejora → Procesamiento → Descarga ✅
 
 ### Después del Día 24:
 **Podrás probar:**
@@ -644,9 +648,9 @@ model CreditTransaction {
 • Cambio manual → Verificar persistencia
 ```
 
-## 📊 Estado Actual del Proyecto (Día 17/28)
+## 📊 Estado Actual del Proyecto (Día 21/28)
 
-### ✅ **Completado (Semana 1-3):**
+### ✅ **Completado (Semanas 1-3):**
 
 #### **Core Funcional**
 - **Internacionalización completa** (ES/EN/PT) con selector visual
@@ -667,7 +671,7 @@ model CreditTransaction {
 - **Pricing dinámico** que muestra ambas monedas
 - **Webhooks unificados** procesando pagos en tiempo real
 
-#### **🚀 Sistema Multi-Modal de Análisis IA (NUEVO)**
+#### **🚀 Sistema Multi-Modal de Análisis IA**
 - **Stack híbrido inteligente**: pdf-lib + pdf2pic + tesseract.js + sharp + mammoth
 - **Procesamiento universal**: PDFs (texto/escaneados), Word, imágenes
 - **OpenAI GPT-4o-mini** integrado con análisis completo
@@ -677,21 +681,27 @@ model CreditTransaction {
 - **Pipeline optimizado**: Preprocessing con Sharp para máxima precisión OCR
 - **Sistema end-to-end**: Upload → Procesamiento → IA → Resultados funcionando al 100%
 
-### 🔄 **En Progreso (Días 18-21):**
-- **Mejoras de IA** (General y Específica) con los datos del análisis
-- **Optimización de prompts** para mejores resultados
-- **Templates de mejora** personalizados
+#### **💎 Sistema Completo de Mejoras de CVs (NUEVO)**
+- **Mejora General (10 créditos)**: Optimización integral del CV con IA
+- **Mejora Específica (15 créditos)**: Personalización para ofertas de trabajo
+- **Validación de créditos**: Sistema automático antes de procesar
+- **UI interactiva**: Selección de tipo de mejora con preview en tiempo real
+- **Vista de enhancements**: Página dedicada para ver mejoras guardadas
+- **Descarga múltiple**: Formato TXT (PDF próximamente)
+- **Integración completa**: Desde análisis hasta descarga final
 
-### ⏳ **Pendiente:**
+### ⏳ **Pendiente (Semana 4):**
 - Generación de PDFs ATS-ready con Puppeteer
 - Onboarding guiado completo
 - Deploy en producción con Dokploy
+- Testing y QA final
 
-### 🎯 **Progreso del Roadmap: 61% (17/28 días)**
+### 🎯 **Progreso del Roadmap: 75% (21/28 días)**
 
 ### 🏆 **Hitos Técnicos Alcanzados:**
 - ✅ **Sistema multi-modal funcionando** - Cualquier tipo de CV procesable
 - ✅ **IA completamente integrada** - Análisis real con resultados detallados
+- ✅ **Flujos de mejora completos** - General y Específica funcionando
 - ✅ **Stack híbrido optimizado** - Velocidad + compatibilidad total
 - ✅ **Pagos multi-moneda operativos** - Stripe procesando en MXN/USD
 - ✅ **Infraestructura escalable** - Cloudflare R2 + Next.js + Prisma

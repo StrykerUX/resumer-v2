@@ -140,7 +140,7 @@ function AnalyzePageContent() {
 
   const handleStartImprovement = (type: 'general' | 'targeted') => {
     // Navegar a la página de mejoras
-    router.push(`/dashboard/improve?resumeId=${resumeId}&type=${type}`);
+    router.push(`/dashboard/enhance?resumeId=${resumeId}&type=${type}`);
   };
 
   if (error) {

@@ -285,16 +285,24 @@ export default function ResumePreviewPage() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button className="w-full" variant="outline" disabled>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => router.push(`/dashboard/enhance?resumeId=${resume.id}&type=general`)}
+                >
                   <Sparkles className="w-4 h-4 mr-2" />
                   Mejora General (10 créditos)
                 </Button>
-                <Button className="w-full" variant="outline" disabled>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => router.push(`/dashboard/enhance?resumeId=${resume.id}&type=targeted`)}
+                >
                   <Target className="w-4 h-4 mr-2" />
                   Mejora Específica (15 créditos)
                 </Button>
                 <p className="text-xs text-gray-500">
-                  Las mejoras estarán disponibles próximamente
+                  Primero analiza tu CV, luego podrás mejorarlo
                 </p>
               </CardContent>
             </Card>
